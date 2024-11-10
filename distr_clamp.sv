@@ -7,7 +7,8 @@ module distortion_clamp #(
  
 localparam one_level = 1 << bits_per_level;
  
-int signed dx = int'(x);
+int signed dx;
+assign dx = int'(x);
  
 always_comb begin
 	if ( dx > one_level )

@@ -7,10 +7,12 @@ module distortion #(
 );
 
 int signed signal, clamped_signal;
-multiply m_gain#(bits_per_level)(.a(in_signal), .b(gain), .res(signal));
+multiply #(bits_per_level)
+     m_gain(.a(in_signal), .b(gain), .res(signal));
 
-distortion_clamp m_clamp#(bits_per_level)(.x(signal), .out(clamped_signal));
+distortion_clamp #(bits_per_level)
+     m_clamp(.x(signal), .out(clamped_signal));
 
 assign out_signal = shortint'(clamped_signal);
      
-endmodule
+endmodule 
