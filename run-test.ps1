@@ -1,6 +1,9 @@
 $files = Get-ChildItem -Recurse -Filter "*.sv" | %{$_.FullName}
 
+mkdir test
 
-iverilog -o dsn -g2012 $files
+iverilog -o test/dsn -g2012 $files
+cd test
 vvp dsn
-gtkwave 
+cd ..
+gtkwave test/test.vcd 

@@ -6,15 +6,16 @@ module distortion_clamp #(
 );
  
 localparam one_level = 1 << bits_per_level;
+localparam half_level = one_level / 2;
  
 int signed dx;
 assign dx = int'(x);
  
 always_comb begin
 	if ( dx > one_level )
-		out = one_level;
+		out = half_level;
 	else if ( dx < -one_level)
-		out = -one_level;
+		out = -half_level;
 	else
 		out = ((dx*3) >> 2) + (((dx*dx) >> 16)*dx >> 16); 
 end
