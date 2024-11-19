@@ -8,7 +8,7 @@ int signed expected;
 gain m_mul(mulA, mulB, mulOut) ;
 
 initial begin // gain
-     $dumpfile("test-mul.vcd");
+     $dumpfile("test-gain.vcd");
      $dumpvars(0,mulA);
      $dumpvars(0,mulB);
      $dumpvars(0,mulOut);
