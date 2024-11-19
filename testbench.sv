@@ -1,24 +1,33 @@
+`timescale 10s/1s
 module tesbench();
 
-shortint mulA, mulB, mulOut;
+shortint signed mulA, mulB;
+int mulOut;
+int signed expected;
 
-multiply m_mul(mulA, mulB, mulOut) ;
+gain m_mul(mulA, mulB, mulOut) ;
 
-initial begin // multiplication
+initial begin // gain
      $dumpfile("test-mul.vcd");
      $dumpvars(0,mulA);
      $dumpvars(0,mulB);
      $dumpvars(0,mulOut);
-     for (int i=-2**16+1; i<2**16; i+=8) begin
-          for (int j=-2**16+2; j<2**16; i+=8) begin
-               #1ns
+
+     for (shortint i=-shortint'(2**16+1); i<int'(2**14); i+=2**8) begin
+          for (shortint j=-shortint'(2**16+2); j<int'(2**14); j+=2**8) begin
+               #1
                assign mulA = i;
                assign mulB = j;
-               #1ns
-               if(mulOut !== (i*j / (2**16)))
+               #1
+               expected = (int'(i)*int'(j) / (2**12));
+               if(mulOut !== expected) begin
                     $error("Oopsy-doopsy. The UwU multiplycatinyan is not wowkin (");
+                    $display("\nA=%d, B=%d, Answer = %d\ni=%d, j=%d, Expected = %d", mulA, mulB, mulOut, i, j, expected);
+                    $finish();
+               end
           end
      end
+     #10
 
      $finish();
 end

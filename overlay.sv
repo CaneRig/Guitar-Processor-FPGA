@@ -1,13 +1,14 @@
 module overlay #(
-     parameter bucket_size = 64
+     parameter bucket_size = 16
 ) (
-     input shortint signed[bucket_size] A,
-     input shortint signed[bucket_size] B, 
-     output shortint signed[bucket_size] C
+     input shortint signed A[bucket_size],
+     input shortint signed B[bucket_size], 
+     output shortint signed C[bucket_size]
 );
 
-generate;
-     for (int i=0; i<bucket_size; ++i) begin
+genvar i;
+generate
+     for (i=0; i<bucket_size; ++i) begin
           overlay_element mix_el (
                .a(A[i]),
                .b(B[i]),
