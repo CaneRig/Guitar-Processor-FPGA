@@ -7,7 +7,7 @@ module distortion #(
 );
 
 int signed signal, clamped_signal;
-multiply #(bits_per_level)
+gain #(bits_per_level)
      m_gain(.a(in_signal), .b(gain), .res(signal));
 
 distortion_clamp #(bits_per_level)

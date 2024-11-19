@@ -1,4 +1,4 @@
-module multiply #(
+module gain #(
      parameter bits_per_level = 12
 ) (
      input shortint signed a, b,
