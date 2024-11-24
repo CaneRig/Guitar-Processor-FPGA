@@ -6,6 +6,6 @@ You can run verification via powershell script:
 ```
 
 Options:
-- help - outputs commands
-- clear - removes "test/" folder and exits
-- notest - compile without running verification 
+- -help - outputs commands
+- -clear - removes "test/" folder and exits
+- -notest - compile without running verification 
