@@ -19,8 +19,8 @@ initial begin // gain
      for (shortint i=-shortint'(2**16+1); i<int'(2**14); i+=2**7) begin
           for (shortint j=-shortint'(2**16+2); j<int'(2**14); j+=2**7) begin
                #1
-               assign gain_mulA = i;
-               assign gain_mulB = j;
+               gain_mulA = i;
+               gain_mulB = j;
                #1
                gain_expected = (int'(i)*int'(j) / (2**12));
                if(gain_mulOut !== gain_expected && gain_mulOut !== gain_expected - 1) begin

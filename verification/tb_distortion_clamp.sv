@@ -32,8 +32,8 @@ initial begin
      $dumpvars(0, distortion_clamp_expected);
 
      for (int i = -int'(2**16); i < int'(2**16); i+=2) begin
-          assign distortion_clamp_input = i;
-          assign distortion_clamp_expected = distortion_clamp_test(i);
+          distortion_clamp_input = i;
+          distortion_clamp_expected = distortion_clamp_test(i);
           #1;
           if(distortion_clamp_output != distortion_clamp_expected) begin
                $error("Error: wrong distortion clamp error at %d: \n Expected:\t%d\n Found:\t%d\n", i, distortion_clamp_expected, distortion_clamp_output);
