@@ -16,8 +16,8 @@ initial begin // gain
      $dumpvars(0,gain_mulB);
      $dumpvars(0,gain_mulOut);
 
-     for (integer i=-(2**16+1); i<(2**14); i+=2**7) begin
-          for (integer j=-(2**16+2); j<(2**14); j+=2**7) begin
+     for (shortint i=-shortint'(2**16+1); i<int'(2**14); i+=2**7) begin
+          for (shortint j=-shortint'(2**16+2); j<int'(2**14); j+=2**7) begin
                #1
                gain_mulA = i;
                gain_mulB = j;

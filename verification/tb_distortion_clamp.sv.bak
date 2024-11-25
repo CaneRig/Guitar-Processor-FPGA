@@ -31,7 +31,7 @@ initial begin
      $dumpvars(0, distortion_clamp_output);
      $dumpvars(0, distortion_clamp_expected);
 
-     for (integer i = -(2**16); i < (2**16); i+=2) begin
+     for (int i = -int'(2**16); i < int'(2**16); i+=2) begin
           distortion_clamp_input = i;
           distortion_clamp_expected = distortion_clamp_test(i);
           #1;
