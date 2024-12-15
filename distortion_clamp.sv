@@ -19,14 +19,5 @@ always_comb begin
 	else
 		out = ((dx*3) + (dx * dx / one_level * dx / one_level)) / 4;
 end
-/*
-ONE = 2**12
-     if v<=-ONE:
-          return -ONE//2
-     elif v>=ONE:
-          return ONE//2
-     else:
-          return ((v*3)+(v * v // ONE * v // ONE))//4
-*/
- 
+
 endmodule
