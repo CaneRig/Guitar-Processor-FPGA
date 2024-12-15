@@ -40,9 +40,13 @@ if ($clear) {
 }
 
 $files = Get-ChildItem -Recurse -Filter "*.sv" | % { $_.FullName }
-$testbenches = Get-ChildItem -Path "./verification/" -Recurse -Filter "*.sv" | % { $_.FullName }
+$testbenches = Get-ChildItem -Path "verification/" -Recurse -Filter "*.sv" | % { $_.FullName }
+$exclude = Get-ChildItem -Path "IP/" -Recurse -Filter "*.sv" | % { $_.FullName }
+$topmodule = Get-ChildItem -Filter "topmodule.sv" | % { $_.FullName }
 
 $files = $files | ? { $_ -notin $testbenches }
+$files = $files | ? { $_ -ne $topmodule }
+$files = $files | ? { $_ -notin $exclude }
 
 mkdir test 2>$null
 mkdir test/vvp 2>$null

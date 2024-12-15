@@ -12,9 +12,9 @@ module effects_pipline #(
      latch16 gate1(
           .clk(clk),
           .data(sample),
-          .out_signal(gate1_value)
+          .out(gate1_value)
      );
-     shortint signed in, gain, out;
+     shortint signed distortion_in, gain, out;
 
      assign distortion_in = shortint'(gate1_value);
      assign gain = shortint'(gain_value);
@@ -31,7 +31,7 @@ module effects_pipline #(
      latch16 gate2(
           .clk(clk),
           .data(gate2_value),
-          .out_signal(gate2_value)
+          .out(gate2_value)
      );
 
      assign out_signal = gate2_value;
