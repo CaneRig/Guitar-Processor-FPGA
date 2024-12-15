@@ -1,9 +1,10 @@
 module effects_pipline #(
-     parameter its_per_level = 12
+     parameter bits_per_level = 12
 ) (
      input clk, 
-     input logic [15: 0] sample,
-     output logic[15: 0] out_sample
+	  input  [10: 0] gain_value,
+     input  [15: 0] sample,
+     output [15: 0] out_sample
 );
 
 /// GATE 1

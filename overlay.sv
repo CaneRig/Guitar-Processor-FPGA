@@ -7,7 +7,7 @@ module overlay #(
 );
 
 genvar i;
-generate
+generate gn
      for (i=0; i<bucket_size; ++i) begin
           overlay_element mix_el (
                .a(A[i]),
