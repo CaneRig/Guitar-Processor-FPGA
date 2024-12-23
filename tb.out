@@ -49,7 +49,9 @@ v0x5598995d32a0_0 .net "out_sample", 15 0, L_0x55989958d780;  alias, 1 drivers
 v0x5598995d3360_0 .net "sample", 15 0, v0x5598995d40a0_0;  1 drivers
 L_0x5598995d43c0 .cast/2 16, v0x5598995d0fe0_0;
 L_0x5598995d4480 .cast/2 16, L_0x7fec06f86060;
-S_0x5598995d0860 .scope module, "gate2" "latch16" 4 31, 5 1 0, S_0x5598995d05c0;
+S_0x5598995d0860 .scope module, "gate2" "flipflop#(
+     .size = 16
+)" 4 31, 5 1 0, S_0x5598995d05c0;
  .timescale 0 0;
     .port_info 0 /INPUT 1 "clk";
     .port_info 1 /INPUT 16 "data";
@@ -59,7 +61,9 @@ v0x559899589be0_0 .net "data", 15 0, L_0x5598995d4c80;  alias, 1 drivers
 v0x55989958cee0_0 .net "out", 15 0, v0x559899592740_0;  alias, 1 drivers
 v0x559899592740_0 .var "reg_data", 15 0;
 E_0x559899598920 .event posedge, v0x5598995897c0_0;
-S_0x5598995d0c50 .scope module, "i_ff_in" "latch16" 4 12, 5 1 0, S_0x5598995d05c0;
+S_0x5598995d0c50 .scope module, "i_ff_in" "flipflop#(
+     .size = 16
+)" 4 12, 5 1 0, S_0x5598995d05c0;
  .timescale 0 0;
     .port_info 0 /INPUT 1 "clk";
     .port_info 1 /INPUT 16 "data";

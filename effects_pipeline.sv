@@ -9,7 +9,9 @@ module effects_pipline #(
 
 /// GATE 1
      wire [15: 0] gate1_value;
-     latch16 i_ff_in(
+     flipflop#(
+     .size = 16
+) i_ff_in(
           .clk(clk),
           .data(sample),
           .out(gate1_value)
@@ -28,7 +30,9 @@ module effects_pipline #(
 
 /// GATE 2
      wire [15: 0] gate2_value;
-     latch16 gate2(
+     flipflop#(
+     .size = 16
+) gate2(
           .clk(clk),
           .data(gate2_in),
           .out(gate2_value)
