@@ -1,11 +1,12 @@
 module effects_pipline #(
-     parameter bits_per_level = 12
+     parameter bits_per_level = 12,
+               bits_per_gain_frac = 4   // fractional part of input gain
 ) (
      input clk,
      input rst,
 
      // effects parameters 
-	input  [10: 0] gain_value,
+	input  [10: 0] gain_value,    // bits_per_gain_frac bits for fraction part, 10 - bits_per_gain_frac bits for integer part
 
 
      input          valid,
@@ -31,8 +32,10 @@ module effects_pipline #(
      assign ss_ovrd_in   = shortint'(overdrive_in);
      assign ss_gain      = shortint'(gain_value);
 
+     wire [15  :0   ] overdrive_out;
      overdrive #(
-          .bits_per_level(bits_per_level)
+          .bits_per_level(bits_per_level),
+          .bits_per_gain_frac(bits_per_gain_frac)
      ) i_ovrd (
           .signal_in(ss_ovrd_in),
           .gain(ss_gain),

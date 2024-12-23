@@ -1,5 +1,6 @@
 module overdrive #(
-     parameter bits_per_level = 12
+     parameter bits_per_level = 12,
+               bits_per_gain_frac = 4
 )(
      input shortint signed signal_in,
      input shortint signed gain,
@@ -7,7 +8,7 @@ module overdrive #(
 );
      
      int signed ss_signal, ss_clamped_signal;
-     gain #(bits_per_level)
+     gain #(bits_per_gain_frac)
           m_gain(.a(signal_in), .b(gain), .res(ss_signal));
      
      overdrive_clamp #(bits_per_level)

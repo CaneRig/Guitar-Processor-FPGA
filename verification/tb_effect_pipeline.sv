@@ -23,10 +23,11 @@ module testbench;
 
     effects_pipline dut (
         .clk(clk), // slow !?!
-        //.rst(),
+        .rst('0),
+        .valid('1),
 		.gain_value(10'd20),
-		.sample(sample_in),
-		.out_sample(sample_out)
+		.sample_in(sample_in),
+		.sample_out(sample_out)
     );
 
     //--------------------------------------------------------------------------

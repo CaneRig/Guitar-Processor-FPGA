@@ -54,7 +54,7 @@ mkdir test/vvp 2>$null
 foreach ($tb in $testbenches) {
      $tbp = (Get-Item $tb).BaseName + ".vvp"
 
-     iverilog -o test/vvp/$tbp -g2012 $files $tb 
+     iverilog -o test/vvp/$tbp -Icommon -g2012 $files $tb 
 
      if ($?) {
           if ($notest) {
