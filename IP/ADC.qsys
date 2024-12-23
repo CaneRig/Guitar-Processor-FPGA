@@ -6,7 +6,7 @@
    version="1.0"
    description=""
    tags="INTERNAL_COMPONENT=true"
-   categories="" />
+   categories="System" />
  <parameter name="bonusData"><![CDATA[bonusData 
 {
    element modular_adc_0
@@ -264,8 +264,8 @@
   <parameter name="tsclksel" value="1" />
   <parameter name="tsd_max" value="125" />
   <parameter name="tsd_min" value="0" />
-  <parameter name="use_ch0" value="true" />
-  <parameter name="use_ch1" value="false" />
+  <parameter name="use_ch0" value="false" />
+  <parameter name="use_ch1" value="true" />
   <parameter name="use_ch10" value="false" />
   <parameter name="use_ch11" value="false" />
   <parameter name="use_ch12" value="false" />

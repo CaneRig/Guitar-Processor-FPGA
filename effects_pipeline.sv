@@ -3,13 +3,13 @@ module effects_pipline #(
 ) (
      input clk, 
 	  input  [10: 0] gain_value,
-     input  [15: 0] sample,
+     input  [15: 0] sample, // to 12 bits
      output [15: 0] out_sample
 );
 
 /// GATE 1
      wire [15: 0] gate1_value;
-     latch16 gate1(
+     latch16 i_ff_in(
           .clk(clk),
           .data(sample),
           .out(gate1_value)
@@ -30,10 +30,11 @@ module effects_pipline #(
      wire [15: 0] gate2_value;
      latch16 gate2(
           .clk(clk),
-          .data(gate2_value),
+          .data(gate2_in),
           .out(gate2_value)
      );
+	  
 
-     assign out_signal = gate2_value;
+     assign out_sample = gate2_value;
      
 endmodule

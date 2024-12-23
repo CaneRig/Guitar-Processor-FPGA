@@ -1,5 +1,6 @@
-module latch16(
+module latch16( // rename + parametrise
      input clk,
+     // reset
      input  logic[15: 0] data,
      output logic[15: 0] out
 );

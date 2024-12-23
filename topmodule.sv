@@ -5,18 +5,33 @@ module topmodule#(
 				out_res  = 16  // resolution of output signal
       
   )(
-		input clk, 
-		input rst,
-		output AO_mclk,  // GPIO-33
-		output AO_bclk,  // GPIO-31
-		output AO_lrclk,  // GPIO-27
-		output AO_sdata,  // GPIO-29
-		output led
+		input MAX10_CLK1_50,
+		input [9: 0] SW,
+		input [1: 0] KEY,
+		
+		output [9: 0] LEDR,
+		
+		inout [35: 0] GPIO
   );
+
+  	wire clk;
+	wire rst;
+	wire AO_mclk;  // GPIO-33
+	wire AO_bclk;  // GPIO-31
+	wire AO_lrclk;  // GPIO-27
+	wire AO_sdata;  // GPIO-29
+
+	assign clk = MAX10_CLK1_50;
+	assign rst = SW[9];
+	assign GPIO[33] = AO_mclk;
+	assign GPIO[31] = AO_bclk;
+	assign GPIO[27] = AO_lrclk;
+	assign GPIO[29] = AO_sdata;
+	
   
   wire gnd = '0;
   wire vcc = '1;
-  localparam ch_selector = 5'd0;
+  localparam ch_selector = 5'd1;
 
 
 // IO wires
@@ -24,41 +39,53 @@ module topmodule#(
   wire [11			: 0] adc_out_sample; 
   
 // audio input
-	PLL ppl(
+	PLL pll(
 		.inclk0	(clk		),
 		.c0		(pll_clk	)
 	);
 	fiftyfivenm_adcblock_top_wrapper ip_adc (
-		.chsel				( ch_selector		),
+		.chsel				( SW[1:0] 		),
 		.soc					( vcc					),
 		.usr_pwd				( gnd					),
 		.tsen					( gnd					),
 		.clkin_from_pll_c0( pll_clk			),
 		.dout					( adc_out_sample	)
 	);
+	assign LEDR = adc_out_sample[11-:10];
 	
 // effects
 	wire [out_res-1: 0] eff_in_sample;
 	assign eff_in_sample[11: 0] = adc_out_sample;
 
-	/*TODO
+	//TODO
 	effects_pipline effs( 
-		clk, // slow !?!
-		eff_in_sample,
-		dac_in_sample
+		.clk(clk), // slow !?!
+		.gain_value(10'd20),
+		.sample(eff_in_sample),
+		.out_sample(eff_out_sample)
 	);
-	*/
-	assign dac_in_sample = eff_in_sample * 4;
 	
+	assign dac_in_sample = SW[3] ? eff_in_sample * 4 : eff_out_sample;
+	// in/out v konce 
+	
+	
+	logic[15: 0] dac_reg;
+	
+	always_ff @(posedge clk) begin
+		if(rst)
+			dac_reg <= '0;
+		else
+			dac_reg <= dac_in_sample;
+	end
 	
 
 // audio output  
   i2s_audio_out # (
             .clk_mhz ( clk_mhz   )
         ) inst_audio_out (
-            .clk     ( clk       	 ),
+            .clk     ( clk   	 ),
             .reset   ( rst       	 ),
-            .data_in ( dac_in_sample ),
+            .data_in ( dac_reg		 ),
             .mclk    ( AO_mclk   	 ), // JP1 pin 38
             .bclk    ( AO_bclk   	 ), // JP1 pin 36
             .lrclk   ( AO_lrclk  	 ), // JP1 pin 32
