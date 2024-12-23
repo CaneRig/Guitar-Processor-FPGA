@@ -1,5 +1,5 @@
 module flipflop#(
-     .size = 16
+     parameter size = 16
 )( // rename + parametrise
      input clk,
      input rst,
@@ -10,7 +10,7 @@ module flipflop#(
 
      logic[15: 0] reg_data;
      always_ff @(posedge clk) begin
-          if(rst) begin
+          if(rst)
                reg_data <= '0;
           else if(valid)
                reg_data <= data;

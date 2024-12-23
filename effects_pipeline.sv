@@ -17,7 +17,7 @@ module effects_pipline #(
      logic [15  :0   ]   overdrive_in;
 
      flipflop#(
-          .size = 16
+          .size(16)
      ) i_overdrive_ff (
           .clk(clk),
           .rst(rst),
@@ -32,7 +32,7 @@ module effects_pipline #(
      assign ss_gain      = shortint'(gain_value);
 
      overdrive #(
-          .bits_per_level = bits_per_level
+          .bits_per_level(bits_per_level)
      ) i_ovrd (
           .signal_in(ss_ovrd_in),
           .gain(ss_gain),
@@ -41,7 +41,7 @@ module effects_pipline #(
 
 // Output
      flipflop#(
-          .size = 16
+          .size(16)
      ) i_output_ff (
           .clk(clk),
           .rst(rst),

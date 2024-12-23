@@ -57,11 +57,13 @@ module topmodule#(
 	wire [out_res-1: 0] eff_sample_in;
 	assign eff_sample_in[11: 0] = adc_sample_out;
 
-	effects_pipline effs( 
-		.clk(clk), 
-		.gain_value(10'd20),
-		.sample(eff_sample_in),
-		.out_sample(eff_sample_out)
+	effects_pipline i_effs( 
+		.clk		(clk			), 
+		.rst		(gnd			),
+		.valid		(gcc			),
+		.gain_value	(10'd20			),
+		.sample_in	(eff_sample_in	),
+		.sample_out	(eff_sample_out	)
 	);
 	
 	assign dac_sample_in = SW[3] ? eff_sample_in * 4 : eff_sample_out;
