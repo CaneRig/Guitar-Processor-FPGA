@@ -35,8 +35,8 @@ module topmodule#(
 
 
 // IO wires
-  wire [out_res-1	: 0] dac_in_sample;
-  wire [11			: 0] adc_out_sample; 
+  wire [out_res-1	: 0] dac_sample_in;
+  wire [11			: 0] adc_sample_out; 
   
 // audio input
 	PLL pll(
@@ -44,28 +44,27 @@ module topmodule#(
 		.c0		(pll_clk	)
 	);
 	fiftyfivenm_adcblock_top_wrapper ip_adc (
-		.chsel				( SW[1:0] 		),
-		.soc					( vcc					),
-		.usr_pwd				( gnd					),
-		.tsen					( gnd					),
-		.clkin_from_pll_c0( pll_clk			),
-		.dout					( adc_out_sample	)
+		.chsel				( SW[1:0] 			),
+		.soc				( vcc				),
+		.usr_pwd			( gnd				),
+		.tsen				( gnd				),
+		.clkin_from_pll_c0	( pll_clk			),
+		.dout				( adc_sample_out	)
 	);
-	assign LEDR = adc_out_sample[11-:10];
+	assign LEDR = adc_sample_out[11-:10];
 	
 // effects
-	wire [out_res-1: 0] eff_in_sample;
-	assign eff_in_sample[11: 0] = adc_out_sample;
+	wire [out_res-1: 0] eff_sample_in;
+	assign eff_sample_in[11: 0] = adc_sample_out;
 
-	//TODO
 	effects_pipline effs( 
-		.clk(clk), // slow !?!
+		.clk(clk), 
 		.gain_value(10'd20),
-		.sample(eff_in_sample),
-		.out_sample(eff_out_sample)
+		.sample(eff_sample_in),
+		.out_sample(eff_sample_out)
 	);
 	
-	assign dac_in_sample = SW[3] ? eff_in_sample * 4 : eff_out_sample;
+	assign dac_sample_in = SW[3] ? eff_sample_in * 4 : eff_sample_out;
 	// in/out v konce 
 	
 	
@@ -75,7 +74,7 @@ module topmodule#(
 		if(rst)
 			dac_reg <= '0;
 		else
-			dac_reg <= dac_in_sample;
+			dac_reg <= dac_sample_in;
 	end
 	
 

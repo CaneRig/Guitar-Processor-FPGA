@@ -6,6 +6,6 @@ module fixed_multiply#(
      output int signed c
 );
 
-assign c = (a*b) >>> bits_per_level;
+     assign c = (a*b) >>> bits_per_level;
 
 endmodule
