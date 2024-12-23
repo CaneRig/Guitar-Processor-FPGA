@@ -1,4 +1,4 @@
-module distortion_clamp #(
+module overdrive_clamp #(
 	parameter bits_per_level = 12
 ) (
 	input int signed x,

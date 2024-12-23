@@ -4,8 +4,8 @@ module flipflop#(
      input clk,
      input rst,
      input valid,
-     input  logic[size - 1    :    0] data,
-     output logic[size - 1    :    0] out
+     input  logic[size - 1    :0   ] data,
+     output logic[size - 1    :0   ] out
 );
 
      logic[15: 0] reg_data;
