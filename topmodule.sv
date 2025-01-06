@@ -29,44 +29,55 @@ module topmodule#(
 	assign GPIO[29] = AO_sdata;
 	
   
-  wire gnd = '0;
-  wire vcc = '1;
+  localparam gnd = '0;
+  localparam vcc = '1;
   localparam ch_selector = 5'd1;
 
 
 // IO wires
   wire [out_res-1	: 0] dac_sample_in;
+  wire [11			: 0] adc_sample_unsigned_out; 
   wire [11			: 0] adc_sample_out; 
   
 // audio input
-	PLL pll(
+	PLL i_pll(
 		.inclk0	(clk		),
 		.c0		(pll_clk	)
 	);
-	fiftyfivenm_adcblock_top_wrapper ip_adc (
+	fiftyfivenm_adcblock_top_wrapper i_ip_adc (
 		.chsel				( SW[1:0] 			),
 		.soc				( vcc				),
 		.usr_pwd			( gnd				),
 		.tsen				( gnd				),
 		.clkin_from_pll_c0	( pll_clk			),
-		.dout				( adc_sample_out	)
+		.dout				( adc_sample_unsigned_out	)
 	);
+	
+	unsign2sign#(
+		.size(12)
+	) i_u2s (
+		.in	(adc_sample_unsigned_out),
+		.out	(adc_sample_out)
+	);
+	
 	assign LEDR = adc_sample_out[11-:10];
 	
 // effects
 	wire [out_res-1: 0] eff_sample_in;
+	wire [out_res-1: 0] eff_sample_out;
 	assign eff_sample_in[11: 0] = adc_sample_out;
+	
 
 	effects_pipline i_effs( 
 		.clk		(clk			), 
 		.rst		(gnd			),
-		.valid		(gcc			),
-		.gain_value	(10'd20			),
+		.valid	(vcc			),
+		.gain_value	(10'd0 << 4 	),
 		.sample_in	(eff_sample_in	),
 		.sample_out	(eff_sample_out	)
 	);
 	
-	assign dac_sample_in = SW[3] ? eff_sample_in * 4 : eff_sample_out;
+	assign dac_sample_in = SW[3] ? eff_sample_in : eff_sample_out;
 	// in/out v konce 
 	
 	
@@ -79,14 +90,23 @@ module topmodule#(
 			dac_reg <= dac_sample_in;
 	end
 	
-
+	
 // audio output  
+	wire [out_res-1	: 0] dac_unsign_out;
+	
+  
+  	sign2unsign #(
+		.size(12)
+	) i_s2u (
+		.in	(dac_reg),
+		.out	(dac_unsign_out)
+	);
   i2s_audio_out # (
             .clk_mhz ( clk_mhz   )
-        ) inst_audio_out (
+        ) i_audio_out (
             .clk     ( clk   	 ),
             .reset   ( rst       	 ),
-            .data_in ( dac_reg		 ),
+            .data_in ( dac_unsign_out),
             .mclk    ( AO_mclk   	 ), // JP1 pin 38
             .bclk    ( AO_bclk   	 ), // JP1 pin 36
             .lrclk   ( AO_lrclk  	 ), // JP1 pin 32

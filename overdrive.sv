@@ -9,11 +9,12 @@ module overdrive #(
      
      int signed ss_signal, ss_clamped_signal;
      gain #(bits_per_gain_frac)
-          m_gain(.a(signal_in), .b(gain), .res(ss_signal));
+          i_gain(.a(signal_in), .b(gain), .res(ss_signal));
      
      overdrive_clamp #(bits_per_level)
-          m_clamp(.x(ss_signal), .out(ss_clamped_signal));
+          i_clamp(.x(ss_signal), .out(ss_clamped_signal));
      
      assign signal_out = shortint'(ss_clamped_signal);
+	  //assign signal_out = shortint'(ss_signal);
      
 endmodule 

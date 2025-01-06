@@ -1,3 +1,5 @@
 test/*
 *.bak
 *_tmp
+run.sh
+tmp

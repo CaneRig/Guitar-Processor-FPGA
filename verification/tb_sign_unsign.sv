@@ -10,24 +10,33 @@ module testbench;
     // Signals to drive Device Under Test - DUT
 
     logic               clk;
-    logic               rst;
 
     // logic               arg_vld;
-    logic  [SLEN - 1:0] sample_in;
+    logic  [SLEN - 1:0] s2u_in;
+    logic  [SLEN - 1:0] u2s_in;
 
     // wire                res_vld;
-    wire   [SLEN - 1:0] sample_out;
+    wire   [SLEN - 1:0] s2u_out;
+    wire   [SLEN - 1:0] u2s_out;
+
+    wire    rst;
 
     //--------------------------------------------------------------------------
     // Instantiating DUT
 
-    effects_pipline dut (
-        .clk(clk), // slow !?!
-        .rst('0),
-        .valid('1),
-		.gain_value(10'd10<<3),
-		.sample_in(sample_in),
-		.sample_out(sample_out)
+    // [-2**15, 2**15 - 1] -> [0, 2**16 - 1]
+    sign2unsign #(
+            .size(SLEN)
+    ) dut_s2u (
+            .in(s2u_in),
+            .out(s2u_out)
+    );
+    // [0, 2**16 - 1] -> [-2**15, 2**15 - 1]
+    unsign2sign #(
+            .size(SLEN)
+    ) dut_u2s (
+            .in(u2s_in),
+            .out(u2s_out)
     );
 
     //--------------------------------------------------------------------------
@@ -43,73 +52,62 @@ module testbench;
         end
     end
 
-    //------------------------------------------------------------------------
-    // Reset
-
-    task reset ();
-
-        rst <= 'x;
-        repeat (3) @ (posedge clk);
-        rst <= '1;
-        repeat (3) @ (posedge clk);
-        rst <= '0;
-
-    endtask
-
     //--------------------------------------------------------------------------
     // Driving stimulus
 
-    localparam TIMEOUT = 5000;
+    localparam TIMEOUT = 500;
+    shortint unsigned s2u, u2s;
 
     task run ();
+
+        localparam half = 2 ** SLEN;
 
         $display ("--------------------------------------------------");
         $display ("Running %m");
 
         // Init and reset
 
-        // arg_vld <= '0;
-        reset ();
-
         // Direct testing - a single test
-
-        sample_in       <=  (SLEN)'(12);
         // arg_vld <= '1;
 
         @ (posedge clk);
-        // arg_vld <= '0;
-
-        // while (~ res_vld)
-        //     @ (posedge clk);
 
         // Direct testing - a group of tests
-
-        for (int i = -int'(10); i < 100; i = i * 3 + 1)
+        for (shortint unsigned i = 0; i < 2**10-1; i+=5000)
         begin
-            sample_in       <= (SLEN)'(i);
-
-            // arg_vld <= '1;
+                        
+            assign s2u_in = (SLEN)'(i); // + half
+            assign u2s_in = (SLEN)'(i); // - half
 
             @ (posedge clk);
-            // arg_vld <= '0;
 
-            // while (~ res_vld)
-                // @ (posedge clk);
+            assign s2u = $signed(i) + $signed(half);
+            assign u2s = $signed(i) - $signed(half);
+
+            if (u2s_out != u2s && 0==1)
+                $display("u2s_out not match: %d -> %d, expected: %d", i, u2s_out, u2s);
+
+            if (s2u_out != s2u && 0==1)
+                $display("s2u_out not match: %d -> %d, expected: %d", i, s2u_out, s2u);
+
         end
 
         // Random testing
 
         repeat (20)
         begin
-            sample_in       <= 12'($urandom());
-
-            // arg_vld <= '1;
+            s2u_in       <= (SLEN)'($urandom());
 
             @ (posedge clk);
-            // arg_vld <= '0;
 
-            // while (~ res_vld)
-                // @ (posedge clk);
+            u2s_in <= s2u_out;
+
+            @ (posedge clk);
+
+            if(s2u_in != u2s_out)
+                $display("Invertable test error: s2u(%d -> %d) -> u2s(%d -> %d)", s2u_in, s2u_out, u2s_in, u2s_out);
+
+            $display("JI");
         end
 
     endtask
