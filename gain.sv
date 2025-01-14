@@ -5,8 +5,13 @@ module gain #(
      output int signed res
 );
      
-     int signed t;
-     assign t = (int'(a) * int'(b)) >>> bits_per_level;
-     assign res = t;
+     fixed_multiply #(
+          .fractional_size(bits_per_level),
+          .operand_size(32)
+     ) i_mul (
+          .a(a),
+          .b(b),
+          .c(res)
+     );
 
 endmodule

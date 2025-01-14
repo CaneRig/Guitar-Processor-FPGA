@@ -1,3 +1,4 @@
+// c = a * b
 module fixed_multiply#(
     parameter  fractional_size     = 12,
                operand_size        = 32
