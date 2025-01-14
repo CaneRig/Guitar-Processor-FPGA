@@ -73,24 +73,25 @@ module testbench;
         @ (posedge clk);
 
         // Direct testing - a group of tests
-        for (shortint unsigned i = 0; i < 2**10-1; i+=5000)
+        for (shortint unsigned i = 0; i < 2**16-1; i+=177)
         begin
                         
-            assign s2u_in = (SLEN)'(i); // + half
-            assign u2s_in = (SLEN)'(i); // - half
+            assign s2u_in = i; // + half
+            assign u2s_in = i; // - half
 
             @ (posedge clk);
 
-            assign s2u = $signed(i) + $signed(half);
-            assign u2s = $signed(i) - $signed(half);
+             assign s2u = $signed(i) + $signed(half);
+             assign u2s = $signed(i) - $signed(half);
 
-            if (u2s_out != u2s && 0==1)
-                $display("u2s_out not match: %d -> %d, expected: %d", i, u2s_out, u2s);
+             if (u2s_out != u2s && 0==1)
+                 $display("u2s_out not match: %d -> %d, expected: %d", i, u2s_out, u2s);
 
-            if (s2u_out != s2u && 0==1)
-                $display("s2u_out not match: %d -> %d, expected: %d", i, s2u_out, s2u);
+             if (s2u_out != s2u && 0==1)
+                 $display("s2u_out not match: %d -> %d, expected: %d", i, s2u_out, s2u);
 
         end
+
 
         // Random testing
 
@@ -109,6 +110,7 @@ module testbench;
 
             $display("JI");
         end
+
 
     endtask
 
@@ -136,7 +138,7 @@ module testbench;
 
     always @ (posedge clk)
     begin
-        $write ("%s time %7d cycle %5d", `__FILE__, $time, cycle);
+        $write ("-- time %7d cycle %5d", $time, cycle);
         cycle <= cycle + 1'b1;
 
         // if (rst)

@@ -6,8 +6,17 @@ param (
      [switch]
      $help = $false,
      [switch]
-     $notest = $false
+     $test = $false,
+     [string]
+     $runtest = ""
 )
+
+$need_runtest = $false
+
+if ($runtest -ne "") {
+     $test = $false
+     $need_runtest = $true
+}
 
 if ($help) {
 
@@ -52,12 +61,18 @@ mkdir test 2>$null
 mkdir test/vvp 2>$null
 
 foreach ($tb in $testbenches) {
-     $tbp = (Get-Item $tb).BaseName + ".vvp"
+     $name = (Get-Item $tb).BaseName
+     if($need_runtest -and ($runtest -ne $name)) {
+          continue
+     }
+          
+
+     $tbp = $name + ".vvp"
 
      iverilog -o test/vvp/$tbp -Icommon -g2012 $files $tb 
 
      if ($?) {
-          if ($notest) {
+          if ($test -or ($name -eq $runtest)) {
                Set-Location test
                vvp vvp/$tbp
           
