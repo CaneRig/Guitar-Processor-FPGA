@@ -54,8 +54,8 @@ endtask
 
 task read_wave(     input string                path,
                     input shortint unsigned     channel_sel,
-                    output wave_read_res_t           result,
-                    output shortint unsigned    data[], 
+                    output wave_read_res_t      result,
+                    output sample_t             data[], 
                     output integer unsigned     rate,
                     output shortint unsigned    depth,
                     output shortint unsigned    channel_count,
@@ -225,11 +225,11 @@ task read_wave(     input string                path,
 endtask
 
 
-function wave_write_res_t write_wave(    input string            path,
-                                    input shortint unsigned depth,
-                                    input int unsigned      frequency,
-                                    input sample_t          data[],
-                                    input logic             verbose = '1);
+function wave_write_res_t write_wave(       input string            path,
+                                            input shortint unsigned depth,
+                                            input int unsigned      frequency,
+                                            input sample_t          data[],
+                                            input logic             verbose = '1);
     begin : fnc
         integer             fhandle;
         integer             depth_bits;
