@@ -212,7 +212,8 @@ task read_wave(     input string                path,
             sample = 0;
 
             for (int i=0; i < depth/8; ++i) begin
-                sample = (sample << 8) | raw[i + sample_begin / 8];
+                // sample = (sample << 8) | raw[i + sample_begin / 8];
+                sample = (sample << 8) | raw[depth/8 - 1 - i + sample_begin / 8];
             end
 
             data[s_id] = sample;
@@ -283,7 +284,7 @@ function wave_write_res_t write_wave(       input string            path,
         __write_int     (fhandle, data_size);
 
         for (int i=0; i < $size(data); ++i) begin
-            for (int j=depth_bits - 1; j >= 0; j--) begin
+            for (int j=0; j<depth_bits; ++j) begin
                 $fwrite (fhandle, "%c", (data[i] >> (8 * j)));
             end
         end
