@@ -21,7 +21,7 @@ module overdrive_clamp #(
 		else
 			clamped_out = ((dx*3) + (dx * dx / one_level * dx / one_level)) / 4;
 		
-		out = clamped_out + (x & 5'b11111);
+		out = clamped_out ;//+ (x & 5'b11111);
 	end
 
 endmodule

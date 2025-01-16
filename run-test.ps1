@@ -6,15 +6,17 @@ param (
      [switch]
      $help = $false,
      [switch]
-     $test = $false,
+     $testall = $false,
      [string]
-     $runtest = ""
+     $runtest = "",
+     [switch]
+     $gui = $false # TODO
 )
 
 $need_runtest = $false
 
 if ($runtest -ne "") {
-     $test = $false
+     $testall = $false
      $need_runtest = $true
 }
 
@@ -23,8 +25,10 @@ if ($help) {
      Write-Output "Usage:"
      Write-Output "      -clear         -    clears './test/*' folder"
      Write-Output "      -help          -    outputs help message"
-     Write-Output "      -test          -    do not run verification and produce .VVP"
-     Write-Output "      [Nothing]      -    builds all tests and runs them"
+     Write-Output "      -testall       -    run all verifications and produce .VVP"
+     Write-Output "      -gui           -    if corresponding test is running, open it in gtkwave"
+     #Write-Output "      -runtest [str] -    run verification named [str] and produce corresponding .VVP"
+     Write-Output "      [Nothing]      -    builds all tests"
      
 
      exit
@@ -65,14 +69,15 @@ foreach ($tb in $testbenches) {
      if($need_runtest -and ($runtest -ne $name)) {
           continue
      }
-          
+     Write-Output "Processing: " + $name          
 
      $tbp = $name + ".vvp"
 
      iverilog -o test/vvp/$tbp -Icommon -g2012 $files $tb 
 
      if ($?) {
-          if ($test -or ($name -eq $runtest)) {
+          if ($testall -or ($name -eq $runtest)) {
+               Write-Output "Testing: " + $name
                Set-Location test
                vvp vvp/$tbp
           

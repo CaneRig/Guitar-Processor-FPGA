@@ -3,3 +3,4 @@ test/*
 *_tmp
 run.sh
 tmp
+a.out

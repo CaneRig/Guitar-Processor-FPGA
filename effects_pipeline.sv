@@ -6,13 +6,23 @@ module effects_pipline #(
      input rst,
 
      // effects parameters 
-	  input  [10: 0] gain_value,    // bits_per_gain_frac bits for fraction part, 10 - bits_per_gain_frac bits for integer part
+	input  [10: 0] gain_value,    // bits_per_gain_frac bits for fraction part, 10 - bits_per_gain_frac bits for integer part
 
 
      input          valid,
      input  [12: 0] sample_in,
      output [15: 0] sample_out
 );
+
+// Extend sample_in from 12 bit to 16
+     wire [15   :0   ]   sample_in_extended;
+     signed_expand#(
+          .operand_size(12),
+          .expansion_size(4)
+     ) i_in_sexpand (
+          .in(sample_in),
+          .out(sample_in_extended)
+     );
 
 // Overdrive
      logic [15  :0   ]   overdrive_in;
@@ -23,7 +33,7 @@ module effects_pipline #(
           .clk(clk),
           .rst(rst),
           .valid(valid),
-          .data(sample_in),
+          .data(sample_in_extended),
           .out(overdrive_in)
      );
 

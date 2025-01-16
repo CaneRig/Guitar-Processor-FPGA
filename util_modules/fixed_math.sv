@@ -1,11 +1,12 @@
 // c = a * b
+// 'c' have double width (i.e. operand_size*2)
 module fixed_multiply#(
     parameter  fractional_size     = 12,
                operand_size        = 32
-)(
-    input  logic [operand_size - 1: 0] a, 
-    input  logic [operand_size - 1: 0] b,
-    output logic [operand_size - 1: 0] c
+) (
+    input  logic signed[operand_size - 1: 0] a, 
+    input  logic signed[operand_size - 1: 0] b,
+    output logic signed[operand_size*2-1: 0] c
 );
 
      logic [operand_size + fractional_size - 1: 0] temp_result; // Temporary result to handle overflow
