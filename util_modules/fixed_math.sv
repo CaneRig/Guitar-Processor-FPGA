@@ -11,20 +11,23 @@ module fixed_multiply#(
      logic [operand_size + fractional_size - 1: 0] temp_result; // Temporary result to handle overflow
      logic [operand_size +fractional_size - 1: 0] partial_products [operand_size + fractional_size]; // Array to store partial products
 
-     logic a_sign, b_sign;
-
      logic [operand_size + fractional_size - 1: 0] a_extended;
      logic [operand_size + fractional_size - 1: 0] b_extended;
 
-
-     always_comb begin
-          a_sign = (a & ((operand_size)'(1) << (operand_size - 1))) >> (operand_size - 1);
-          b_sign = (b & ((operand_size)'(1) << (operand_size - 1))) >> (operand_size - 1);
-
-          a_extended = {(fractional_size)'(0) - a_sign, a};
-          b_extended = {(fractional_size)'(0) - b_sign, b};
-     end
-     
+     signed_expand #(
+          .operand_size(operand_size),
+          .expansion_size(fractional_size)
+     ) i_a_expand (
+          .in(a),
+          .out(a_extended)
+     );
+     signed_expand #(
+          .operand_size(operand_size),
+          .expansion_size(fractional_size)
+     ) i_b_expand (
+          .in(b),
+          .out(b_extended)
+     );   
 
      // Generate block to calculate partial products
      genvar i;
@@ -46,4 +49,21 @@ module fixed_multiply#(
      assign c = temp_result >>> fractional_size;
 
 
+endmodule
+
+// converts in[operand_size-1: 0] -> out[operand_size+expansion_size-1: 0] according to the sign
+module signed_expand #(
+     parameter operand_size   = 12,
+               expansion_size = 4 
+) (
+     input logic[operand_size-1: 0]                    in, 
+     output logic[operand_size+expansion_size-1: 0]    out
+);
+     logic sign;
+     
+     always_comb begin
+          sign = (in & ((operand_size)'(1) << (operand_size - 1))) >> (operand_size - 1);
+
+          out = {(expansion_size)'(0) - sign, in};
+     end
 endmodule
