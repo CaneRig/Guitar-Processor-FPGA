@@ -9,8 +9,8 @@ module fixed_multiply#(
     output logic signed[operand_size*2-1: 0] c
 );
 
-     logic [operand_size + fractional_size - 1: 0] temp_result; // Temporary result to handle overflow
-     logic [operand_size +fractional_size - 1: 0] partial_products [operand_size + fractional_size]; // Array to store partial products
+     logic [(operand_size + fractional_size)*2 - 1: 0] temp_result; // Temporary result to handle overflow
+     logic [operand_size + fractional_size - 1: 0] partial_products [operand_size + fractional_size]; // Array to store partial products
 
      logic [operand_size + fractional_size - 1: 0] a_extended;
      logic [operand_size + fractional_size - 1: 0] b_extended;
@@ -48,7 +48,6 @@ module fixed_multiply#(
 
      // Assign the lower bits to the output
      assign c = temp_result >>> fractional_size;
-
 
 endmodule
 

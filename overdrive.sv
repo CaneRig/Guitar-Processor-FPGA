@@ -2,17 +2,18 @@ module overdrive #(
      parameter bits_per_level = 12,
                bits_per_gain_frac = 4
 )(
-     input shortint signed signal_in,
-     input shortint signed gain,
-     output int signed signal_out
+     input logic[15: 0] signal_in,
+     input logic[15: 0] gain,
+     output logic[31:0] signal_out
 );
      
-     int signed ss_signal, ss_clamped_signal;
+     logic[31: 0] ss_signal;
+     logic[31: 0] ss_clamped_signal;
      gain #(
           .bits_per_level(bits_per_gain_frac)
      ) i_gain (
-          .a(signal_in), 
-          .b(gain), 
+          .x(signal_in), 
+          .gain_value(gain), 
           .res(ss_signal)
      );
      
@@ -23,7 +24,7 @@ module overdrive #(
                .out(ss_clamped_signal)
           );
      
-     assign signal_out = shortint'(ss_clamped_signal);
+     assign signal_out = (ss_clamped_signal) / 2;
 	//  assign signal_out = shortint'(ss_signal);
 	//    assign signal_out = shortint'(signal_in);
      

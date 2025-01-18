@@ -1,4 +1,5 @@
-test/*
+test/vvp/*
+test/*.vcd
 *.bak
 *_tmp
 run.sh

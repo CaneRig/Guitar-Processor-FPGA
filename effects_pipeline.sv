@@ -10,7 +10,7 @@ module effects_pipline #(
 
 
      input          valid,
-     input  [12: 0] sample_in,
+     input  [11: 0] sample_in,
      output [15: 0] sample_out
 );
 
@@ -18,7 +18,7 @@ module effects_pipline #(
      wire [15   :0   ]   sample_in_extended;
      signed_expand#(
           .operand_size(12),
-          .expansion_size(4)
+          .expansion_size(16-12)
      ) i_in_sexpand (
           .in(sample_in),
           .out(sample_in_extended)
@@ -37,19 +37,17 @@ module effects_pipline #(
           .out(overdrive_in)
      );
 
-     shortint signed ss_ovrd_in, ss_gain;
+     wire [31  :0   ] overdrive_out;
+     wire [15  :0   ] ovrd_gain;
 
-     assign ss_ovrd_in   = shortint'(overdrive_in);
-     assign ss_gain      = shortint'(gain_value);
+     assign ovrd_gain = {'0, gain_value};
 
-     wire [15  :0   ] overdrive_out;
-     wire [15  :0   ] overdrive_out_silent;
      overdrive #(
           .bits_per_level(bits_per_level),
           .bits_per_gain_frac(bits_per_gain_frac)
      ) i_ovrd (
-          .signal_in(ss_ovrd_in),
-          .gain(ss_gain),
+          .signal_in(overdrive_in),
+          .gain(ovrd_gain),
           .signal_out(overdrive_out)
      );
      //assign overdrive_out = overdrive_in;
@@ -61,7 +59,7 @@ module effects_pipline #(
           .clk(clk),
           .rst(rst),
           .valid(valid),
-          .data(overdrive_out),
+          .data(overdrive_out[15: 0]),
           .out(sample_out)
      );
      

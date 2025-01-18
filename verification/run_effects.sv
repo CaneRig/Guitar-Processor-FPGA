@@ -27,7 +27,7 @@ module testbench();
         rst = '0;
         valid = '1;
         done = '0;
-        gain_value = 10'b100000;
+        gain_value = 10'b1000000;
 
         read_wave("sample.wav", '0, res, data, rate, depth, channel_count, sample_count); 
         $display("File read");
@@ -39,10 +39,8 @@ module testbench();
         foreach (data[i]) begin
             #1;
             sample_in = data[i] / 2 ** 4;
-            ttmp = data[i];
             clk = '1; 
             #1;
-            //ttmp = {ttmp[7: 0], ttmp[15: 8]};
             clk = '0; 
         end
         done = '1;
@@ -65,8 +63,6 @@ module testbench();
         $dumpfile("run-effect.vcd");
         $dumpvars;
         output_data = new[read_sample_count];
-        tfile = $fopen("data.txt", "w");
-
 
         #2;
 
