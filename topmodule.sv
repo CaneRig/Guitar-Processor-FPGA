@@ -2,7 +2,7 @@
 
 module topmodule#(
   parameter	clk_mhz   = 50,
-				out_res  = 16  // resolution of output signal
+			out_res  = 16  // resolution of output signal
       
   )(
 		input MAX10_CLK1_50,
@@ -69,12 +69,12 @@ module topmodule#(
 	
 
 	effects_pipline i_effs( 
-		.clk		(clk			), 
-		.rst		(gnd			),
-		.valid	(vcc			),
-		.gain_value	(10'd0 << 4 	),
+		.clk		     (clk			), 
+		.rst		     (gnd			),
+		.valid	     (vcc			),
+		.gain_value	(10'd1 << 8    ),
 		.sample_in	(eff_sample_in	),
-		.sample_out	(eff_sample_out	)
+		.sample_out	(eff_sample_out)
 	);
 	
 	assign dac_sample_in = SW[3] ? eff_sample_in : eff_sample_out;
