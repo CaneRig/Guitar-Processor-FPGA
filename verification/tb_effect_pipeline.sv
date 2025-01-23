@@ -21,7 +21,7 @@ module testbench;
     //--------------------------------------------------------------------------
     // Instantiating DUT
 
-    effects_pipline dut (
+    effects_pipeline dut (
         .clk(clk), // slow !?!
         .rst('0),
         .valid('1),

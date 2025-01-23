@@ -68,7 +68,7 @@ module topmodule#(
 	assign eff_sample_in[11: 0] = adc_sample_out;
 	
 
-	effects_pipline i_effs( 
+	effects_pipeline i_effs( 
 		.clk		     (clk			), 
 		.rst		     (gnd			),
 		.valid	     (vcc			),

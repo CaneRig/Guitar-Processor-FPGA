@@ -50,7 +50,7 @@ module testbench();
     end
 
 
-    effects_pipline i_eff_pipe(
+    effects_pipeline i_eff_pipe(
         .clk(clk),
         .rst(rst),
         .valid(valid),
