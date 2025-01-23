@@ -38,13 +38,13 @@ module overdrive_clamp #(
 		.c(x_cubed)
 	);
 	
-	assign transformation = (x + x + x + x_cubed[31:	0]) >>> 2;
+	assign transformation = $signed(x + x + x + x_cubed[31:	0]) >>> 2;
 
 	always_comb begin
 		if ( mid_level > x && x >= pos_one_lv ) // x >= 1
 			clamped_out = 32'(half_level);
-		else if ( mid_level <= x && x <= neg_one_lv) // x <= 1
-			clamped_out = 32'(-half_level);
+		else if ( mid_level <= x && x <= neg_one_lv ) // x <= 1
+			clamped_out = - 32'(half_level);
 		else
 			clamped_out = transformation; 
 		

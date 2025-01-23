@@ -20,14 +20,15 @@ module testbench();
     logic rst;
     logic valid;
     logic[11: 0] sample_in; 
-    logic[31: 0] sample_out; 
+    logic[15: 0] sample_out; 
     
     initial begin
         clk = '0;
         rst = '0;
         valid = '1;
         done = '0;
-        gain_value = 10'b1000000;
+        gain_value = 10'b100000000;
+     //    rate = 44100;
 
         read_wave("sample.wav", '0, res, data, rate, depth, channel_count, sample_count); 
         $display("File read");
@@ -37,8 +38,10 @@ module testbench();
         clk = '0;
 
         foreach (data[i]) begin
+          // for (int i=0; i<2**16; ++i) begin
             #1;
             sample_in = data[i] / 2 ** 4;
+          //   sample_in = i / 2 ** 4;
             clk = '1; 
             #1;
             clk = '0; 
@@ -57,18 +60,18 @@ module testbench();
     );
 
     sample_t output_data[];
-    int read_sample_count = 500000;
+    int read_sample_count = 200000;
 
     initial begin
-        $dumpfile("run-effect.vcd");
-        $dumpvars;
+     //    $dumpfile("run-effect.vcd");
+     //    $dumpvars;
         output_data = new[read_sample_count];
 
         #2;
 
         for (int i=0; i<read_sample_count; ++i) begin
             #2;
-            output_data[i] = sample_out * 16;
+            output_data[i] = $signed(sample_out);
 
             // $display(" -- %d\t->\t%d", sshort'(sample_in), sample_out);
         end
@@ -79,5 +82,15 @@ module testbench();
 
         $finish;
     end 
+
+     int times = 0;
+     initial begin
+
+          while (!done) begin
+               times+=10000 / 2;
+               #10000;
+               $display("TIME IS %d\t/\t%d", times, read_sample_count);
+          end
+     end
 
 endmodule

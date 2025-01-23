@@ -24,7 +24,7 @@ module overdrive #(
                .out(ss_clamped_signal)
           );
      
-     assign signal_out = (ss_clamped_signal) / 2;
+     assign signal_out = $signed(ss_clamped_signal) / 2;
 	//  assign signal_out = shortint'(ss_signal);
 	//    assign signal_out = shortint'(signal_in);
      

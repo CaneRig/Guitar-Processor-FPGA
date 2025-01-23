@@ -1,6 +1,6 @@
 module flipflop#(
      parameter size = 16
-)( // rename + parametrise
+) ( 
      input clk,
      input rst,
      input valid,
