@@ -9,8 +9,8 @@ module fixed_multiply#(
     output logic signed[operand_size*2-1: 0] c
 );
 
-     logic [(operand_size)*2 - 1: 0] signed a_extended;
-     logic [(operand_size)*2 - 1: 0] signed b_extended;
+     logic signed [(operand_size)*2 - 1: 0] a_extended;
+     logic signed [(operand_size)*2 - 1: 0] b_extended;
 
      signed_expand #(
           .operand_size(operand_size),
