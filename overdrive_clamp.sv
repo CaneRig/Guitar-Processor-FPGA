@@ -44,11 +44,11 @@ module overdrive_clamp #(
 		if ( mid_level > x && x >= pos_one_lv ) // x >= 1
 			clamped_out = 32'(half_level);
 		else if ( mid_level <= x && x <= neg_one_lv ) // x <= 1
-			clamped_out = - 32'(half_level);
+			clamped_out = - (32'(half_level));
 		else
 			clamped_out = transformation; 
 		
-		out = clamped_out ;//+ (x & 5'b11111);
+		out = clamped_out + (x & 5'b11111); // some noise
 	end
 
 endmodule
