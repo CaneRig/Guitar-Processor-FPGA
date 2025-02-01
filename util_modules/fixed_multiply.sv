@@ -2,7 +2,8 @@
 // 'c' have double width (i.e. operand_size*2)
 module fixed_multiply#(
     parameter  fractional_size     = 12,
-               operand_size        = 32
+               operand_size        = 32,
+               expansion_size      = operand_size
 ) (
     input  logic signed[operand_size - 1: 0] a, 
     input  logic signed[operand_size - 1: 0] b,
@@ -29,21 +30,4 @@ module fixed_multiply#(
 
      assign c = $signed(a_extended * b_extended) >>> fractional_size;
 
-endmodule
-
-// converts in[operand_size-1: 0] -> out[operand_size+expansion_size-1: 0] according to the sign
-module signed_expand #(
-     parameter operand_size   = 12,
-               expansion_size = 4 
-) (
-     input logic[operand_size-1: 0]                    in, 
-     output logic[operand_size+expansion_size-1: 0]    out
-);
-     logic sign;
-     
-     always_comb begin
-          sign = (in & ((operand_size)'(1) << (operand_size - 1))) >> (operand_size - 1);
-
-          out = {(expansion_size)'(0) - sign, in};
-     end
 endmodule
