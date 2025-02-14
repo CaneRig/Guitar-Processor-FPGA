@@ -27,7 +27,7 @@ module overdrive #(
      ) i_gain2ovrd_ff (
           .clk(clk),
           .valid('1),
-          .rst('1),
+          .rst('0),
 
           .data(gained_signal),
           .out(ff_gain2ovrd_out)
