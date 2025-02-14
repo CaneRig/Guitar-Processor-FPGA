@@ -46,6 +46,7 @@ module effects_pipeline #(
           .bits_per_level(bits_per_level),
           .bits_per_gain_frac(bits_per_gain_frac)
      ) i_ovrd (
+		    .clk(clk),
           .signal_in(overdrive_in),
           .gain(ovrd_gain),
           .signal_out(overdrive_out)
