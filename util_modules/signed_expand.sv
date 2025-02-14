@@ -1,4 +1,3 @@
-
 // converts in[operand_size-1: 0] -> out[operand_size+expansion_size-1: 0] according to the sign
 module signed_expand #(
      parameter operand_size   = 12,
@@ -7,11 +6,11 @@ module signed_expand #(
      input logic[operand_size-1: 0]                    in, 
      output logic[operand_size+expansion_size-1: 0]    out
 );
-     logic sign;
+     wire sign;
      
      always_comb begin
-          sign = (in & ((operand_size)'(1) << (operand_size - 1))) >> (operand_size - 1);
+          sign = in[operand_size-1];
 
-          out = {(expansion_size)'(0) - sign, in};
+          out = {expansion_size{sign}, in};
      end
 endmodule
