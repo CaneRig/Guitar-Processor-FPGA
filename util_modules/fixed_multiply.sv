@@ -7,11 +7,11 @@ module fixed_multiply#(
 ) (
     input  logic signed[operand_size - 1: 0] a, 
     input  logic signed[operand_size - 1: 0] b,
-    output logic signed[operand_size*2-1: 0] c
+    output logic signed[operand_size+expansion_size-1: 0] c
 );
 
-     logic signed [(operand_size)*2 - 1: 0] a_extended;
-     logic signed [(operand_size)*2 - 1: 0] b_extended;
+     logic signed [(operand_size + expansion_size) - 1: 0] a_extended;
+     logic signed [(operand_size + expansion_size) - 1: 0] b_extended;
 
      signed_expand #(
           .operand_size(operand_size),
