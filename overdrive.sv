@@ -40,6 +40,6 @@ module overdrive #(
                .out(clamped_signal)
           );
      
-     assign signal_out = $signed(ss_clamped_signal);
+     assign signal_out = $signed(clamped_signal);
      
 endmodule 
