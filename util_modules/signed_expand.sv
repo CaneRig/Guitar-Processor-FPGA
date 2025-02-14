@@ -8,9 +8,7 @@ module signed_expand #(
 );
      wire sign;
      
-     always_comb begin
-          sign = in[operand_size-1];
+     assign sign = in[operand_size-1];
 
-          out = {expansion_size{sign}, in};
-     end
+     assign out = {{expansion_size{sign}}, in};
 endmodule
