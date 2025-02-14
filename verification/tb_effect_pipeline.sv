@@ -25,9 +25,10 @@ module testbench;
         .clk(clk), // slow !?!
         .rst('0),
         .valid('1),
-		.gain_value(10'd10<<3),
-		.sample_in(sample_in),
-		.sample_out(sample_out)
+		.in_par_gain(10'd10<<3),
+          
+		.in_sample(sample_in),
+		.ou_sample(sample_out)
     );
 
     //--------------------------------------------------------------------------

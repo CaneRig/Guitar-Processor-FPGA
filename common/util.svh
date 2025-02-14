@@ -1,15 +1,14 @@
-// source: https://github.com/yuri-panchul/systemverilog-homework/blob/main/common/util.svh
+`include "config.svh"
 
-`define PD(SYMBOL) $sformatf("SYMBOL:%0d", SYMBOL)
-`define PB(SYMBOL) $sformatf("SYMBOL:%b", SYMBOL)
-`define PH(SYMBOL) $sformatf("SYMBOL:%h", SYMBOL)
-`define PF(SYMBOL) $sformatf("SYMBOL:%f", SYMBOL)
 
-`define PF_BITS(SYMBOL) $sformatf("SYMBOL:%f", $bitstoreal(SYMBOL))
-`define PG_BITS(SYMBOL) $sformatf("SYMBOL:%g", $bitstoreal(SYMBOL))
-
-`ifdef __ICARUS__
-    `define ISUNKNOWN(a) ((^ a) === 1'bx)
-`else
-    `define ISUNKNOWN(a) $isunknown(a)
+// assertation checks
+`ifdef SIMULATION
+     `define STATIC_CHECK(EXPR, MSG) \
+          initial assert ((EXPR)) \
+               else $error(MSG);
+`else 
+     `define STATIC_CHECK(EXPR, MSG)
 `endif
+
+`define CHECK_POW2(VALUE, MSG) \
+          `STATIC_CHECK((1<<$clog2(VALUE)) == VALUE, MSG)   

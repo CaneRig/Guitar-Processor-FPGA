@@ -3,8 +3,8 @@ module signed_expand #(
      parameter operand_size   = 12,
                expansion_size = 4 
 ) (
-     input logic[operand_size-1: 0]                    in, 
-     output logic[operand_size+expansion_size-1: 0]    out
+     input  [operand_size-1: 0]                   in, 
+     output [operand_size+expansion_size-1: 0]    out
 );
      wire sign;
      

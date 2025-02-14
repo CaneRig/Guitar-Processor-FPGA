@@ -54,17 +54,17 @@ module testbench();
         .clk(clk),
         .rst(rst),
         .valid(valid),
-        .gain_value(gain_value),
-        .sample_in(sample_in),
-        .sample_out(sample_out)
+        .in_par_gain(gain_value),
+        .in_sample(sample_in),
+        .ou_sample(sample_out)
     );
 
     sample_t output_data[];
     int read_sample_count = 200000;
 
     initial begin
-     //    $dumpfile("run-effect.vcd");
-     //    $dumpvars;
+        $dumpfile("run-effect.vcd");
+        $dumpvars;
         output_data = new[read_sample_count];
 
         #2;

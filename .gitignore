@@ -5,3 +5,4 @@ test/*
 run.sh
 tmp
 a.out
+test/data.wav

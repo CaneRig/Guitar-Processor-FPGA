@@ -22,7 +22,7 @@ int overdrive_clamp_input;
 int overdrive_clamp_output;
 int overdrive_clamp_expected;
 
-overdrive_clamp m_overdrive_clamp(.x(overdrive_clamp_input), .out(overdrive_clamp_output));
+overdrive_clamp m_overdrive_clamp(.in_sample(overdrive_clamp_input), .ou_sample(overdrive_clamp_output));
 
 initial begin
      $display("overdrive_clamp - test");
