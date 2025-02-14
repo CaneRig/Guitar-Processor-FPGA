@@ -8,7 +8,7 @@ module flipflop#(
      output logic[size - 1    :0   ] out
 );
 
-     logic[15: 0] reg_data;
+     logic[size - 1: 0] reg_data;
      always_ff @(posedge clk) begin
           if(rst)
                reg_data <= '0;
