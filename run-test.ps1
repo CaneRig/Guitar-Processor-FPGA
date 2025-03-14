@@ -52,7 +52,7 @@ if ($clear) {
      Exit-Script
 }
 
-$files = Get-ChildItem -Recurse -Filter "*.sv" | % { $_.FullName }
+$files = Get-ChildItem -Recurse -Filter "rtl/*.sv" | % { $_.FullName }
 $testbenches = Get-ChildItem -Path "verification/" -Recurse -Filter "*.sv" | % { $_.FullName }
 $exclude = Get-ChildItem -Path "IP/" -Recurse -Filter "*.sv" | % { $_.FullName }
 $topmodule = Get-ChildItem -Filter "topmodule.sv" | % { $_.FullName }
