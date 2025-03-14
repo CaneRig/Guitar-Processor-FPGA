@@ -54,9 +54,9 @@ module testbench();
         .clk(clk),
         .rst(rst),
         .valid(valid),
-        .in_par_gain(gain_value),
-        .in_sample(sample_in),
-        .ou_sample(sample_out)
+        .i_par_gain(gain_value),
+        .i_sample(sample_in),
+        .o_sample(sample_out)
     );
 
     sample_t output_data[];

@@ -4,9 +4,9 @@ module overdrive #(
 )(
      input clk,
 
-     input  [15: 0] in_sample,
-     input  [15: 0] in_gain,
-     output [31:0]  ou_sample
+     input  [15: 0] i_sample,
+     input  [15: 0] i_gain,
+     output [31:0]  o_sample
 );
      // we assume that before `overdrive` flipflop already placed 
      
@@ -16,15 +16,15 @@ module overdrive #(
 
      gain #(
           .bits_per_level(bits_per_gain_frac)
-     ) i_gain (
-          .in_sample(in_sample), 
-          .in_gain(in_gain), 
-          .ou_sample(gained_signal)
+     ) ins_gain (
+          .i_sample(i_sample), 
+          .i_gain(i_gain), 
+          .o_sample(gained_signal)
      );
 
      flipflop #(
           .size(32)
-     ) i_gain2ovrd_ff (
+     ) ins_gain2ovrd_ff (
           .clk(clk),
           .valid('1),
           .rst('0),
@@ -35,11 +35,11 @@ module overdrive #(
      
      overdrive_clamp #(
                bits_per_level
-          ) i_clamp (
-               .in_sample(ff_gain2ovrd_out), 
-               .ou_sample(clamped_signal)
+          ) ins_clamp (
+               .i_sample(ff_gain2ovrd_out), 
+               .o_sample(clamped_signal)
           );
      
-     assign ou_sample = $signed(clamped_signal);
+     assign o_sample = $signed(clamped_signal);
      
 endmodule 

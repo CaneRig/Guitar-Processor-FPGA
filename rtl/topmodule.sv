@@ -40,11 +40,11 @@ module topmodule#(
   wire [11			: 0] adc_sample_out; 
   
 // audio input
-	PLL i_pll(
+	PLL ins_pll(
 		.inclk0	(clk		),
 		.c0		(pll_clk	)
 	);
-	fiftyfivenm_adcblock_top_wrapper i_ip_adc (
+	fiftyfivenm_adcblock_top_wrapper ins_ip_adc (
 		.chsel				( SW[1:0] 			),
 		.soc				( vcc				),
 		.usr_pwd			( gnd				),
@@ -55,7 +55,7 @@ module topmodule#(
 	
 	unsign2sign#(
 		.size(12)
-	) i_u2s (
+     ) ins_u2s (
 		.in	(adc_sample_unsigned_out),
 		.out	(adc_sample_out)
 	);
@@ -68,7 +68,7 @@ module topmodule#(
 	assign eff_sample_in[11: 0] = adc_sample_out;
 	
 
-	effects_pipeline i_effs( 
+	effects_pipeline inse_effs( 
 		.clk		     (clk			), 
 		.rst		     (gnd			),
 		.valid	     (vcc			),
@@ -97,20 +97,20 @@ module topmodule#(
   
   	sign2unsign #(
 		.size(12)
-	) i_s2u (
+     ) ins_s2u (
 		.in	(dac_reg),
 		.out	(dac_unsign_out)
 	);
-  i2s_audio_out # (
-            .clk_mhz ( clk_mhz   )
-        ) i_audio_out (
-            .clk     ( clk   	 ),
-            .reset   ( rst       	 ),
-            .data_in ( dac_unsign_out),
-            .mclk    ( AO_mclk   	 ), // JP1 pin 38
-            .bclk    ( AO_bclk   	 ), // JP1 pin 36
-            .lrclk   ( AO_lrclk  	 ), // JP1 pin 32
-            .sdata   ( AO_sdata  	 )  // JP1 pin 34
-        );                          // JP1 pin 30 - GND, pin 29 - VCC 3.3V (30-45 mA)
+     i2s_audio_out # (
+               .clk_mhz ( clk_mhz   )
+     ) ins_audio_out (
+               .clk     ( clk   	 ),
+               .reset   ( rst       	 ),
+               .data_in ( dac_unsign_out),
+               .mclk    ( AO_mclk   	 ), // JP1 pin 38
+               .bclk    ( AO_bclk   	 ), // JP1 pin 36
+               .lrclk   ( AO_lrclk  	 ), // JP1 pin 32
+               .sdata   ( AO_sdata  	 )  // JP1 pin 34
+          );                          // JP1 pin 30 - GND, pin 29 - VCC 3.3V (30-45 mA)
 
 endmodule

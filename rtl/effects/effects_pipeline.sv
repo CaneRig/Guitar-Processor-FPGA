@@ -6,21 +6,21 @@ module effects_pipeline #(
      input rst,
 
      // effects parameters 
-	input  [10: 0] in_par_gain,    // bits_per_gain_frac bits for fraction part, 10 - bits_per_gain_frac bits for integer part
+	input  [10: 0] i_par_gain,    // bits_per_gain_frac bits for fraction part, 10 - bits_per_gain_frac bits for integer part
 
 
      input          valid,
-     input  [11: 0] in_sample,
-     output [15: 0] ou_sample
+     input  [11: 0] i_sample,
+     output [15: 0] o_sample
 );
 
-// Extend in_sample from 12 bit to 16
+// Extend i_sample from 12 bit to 16
      wire [15   :0   ]   sample_in_extended;
      signed_expand#(
           .operand_size(12),
           .expansion_size(16-12)
      ) i_in_sexpand (
-          .in(in_sample),
+          .in(i_sample),
           .out(sample_in_extended)
      );
 
@@ -29,7 +29,7 @@ module effects_pipeline #(
 
      flipflop#(
           .size(16)
-     ) i_overdrive_ff (
+     ) ins_overdrive_ff (
           .clk(clk),
           .rst(rst),
           .valid(valid),
@@ -40,28 +40,28 @@ module effects_pipeline #(
      wire [31  :0   ] overdrive_out;
      wire [15  :0   ] ovrd_gain;
 
-     assign ovrd_gain = {'0, in_par_gain};
+     assign ovrd_gain = {'0, i_par_gain};
 
      overdrive #(
           .bits_per_level(bits_per_level),
           .bits_per_gain_frac(bits_per_gain_frac)
-     ) i_ovrd (
+     ) ins_ovrd (
           .clk(clk),
-          .in_sample(overdrive_in),
-          .in_gain(ovrd_gain),
-          .ou_sample(overdrive_out)
+          .i_sample(overdrive_in),
+          .i_gain(ovrd_gain),
+          .o_sample(overdrive_out)
      );
      //assign overdrive_out = overdrive_in;
 
 // Output
      flipflop#(
           .size(16)
-     ) i_output_ff (
+     ) ins_output_ff (
           .clk(clk),
           .rst(rst),
           .valid(valid),
           .data(overdrive_out[15: 0]),
-          .out(ou_sample)
+          .out(o_sample)
      );
      
 endmodule

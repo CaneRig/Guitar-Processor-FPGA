@@ -4,8 +4,8 @@ module flipflop#(
      input clk,
      input rst,
      input valid,
-     input  logic[size - 1    :0   ] data,
-     output logic[size - 1    :0   ] out
+     input  logic[size - 1    :0   ] i_data,
+     output logic[size - 1    :0   ] o_data
 );
 
      logic[size - 1: 0] reg_data;
@@ -13,9 +13,9 @@ module flipflop#(
           if(rst)
                reg_data <= '0;
           else if(valid)
-               reg_data <= data;
+               reg_data <= i_data;
      end
 
-     assign out = reg_data;
+     assign o_data = reg_data;
 
 endmodule
