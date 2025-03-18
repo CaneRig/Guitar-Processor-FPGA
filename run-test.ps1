@@ -27,7 +27,7 @@ if ($help) {
      Write-Output "      -help          -    outputs help message"
      Write-Output "      -testall       -    run all verifications and produce .VVP"
      Write-Output "      -gui           -    if corresponding test is running, open it in gtkwave"
-     #Write-Output "      -runtest [str] -    run verification named [str] and produce corresponding .VVP"
+     Write-Output "      -runtest [str] -    run verification named [str] and produce corresponding .VVP"
      Write-Output "      [Nothing]      -    builds all tests"
      
 

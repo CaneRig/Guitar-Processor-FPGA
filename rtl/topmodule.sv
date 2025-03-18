@@ -35,53 +35,41 @@ module topmodule#(
 
 
 // IO wires
-  wire [out_res-1	: 0] dac_sample_in;
-  wire [11			: 0] adc_sample_unsigned_out; 
+  wire [out_res-1	     : 0] dac_sample_in;
   wire [11			: 0] adc_sample_out; 
   
 // audio input
-	PLL ins_pll(
-		.inclk0	(clk		),
-		.c0		(pll_clk	)
-	);
-	fiftyfivenm_adcblock_top_wrapper ins_ip_adc (
-		.chsel				( SW[1:0] 			),
-		.soc				( vcc				),
-		.usr_pwd			( gnd				),
-		.tsen				( gnd				),
-		.clkin_from_pll_c0	( pll_clk			),
-		.dout				( adc_sample_unsigned_out	)
-	);
-	
-	unsign2sign#(
-		.size(12)
-     ) ins_u2s (
-		.in	(adc_sample_unsigned_out),
-		.out	(adc_sample_out)
-	);
-	
-	assign LEDR = adc_sample_out[11-:10];
+     audio_input #(
+          .bit_depth     (12            ),
+          .target_depth  (out_res       )
+     ) ins_audio_in (
+          .clk(clk),
+          .o_sample      (adc_sample_out)
+     );
+
 	
 // effects
 	wire [out_res-1: 0] eff_sample_in;
 	wire [out_res-1: 0] eff_sample_out;
-	assign eff_sample_in[11: 0] = adc_sample_out;
-	
 
-	effects_pipeline inse_effs( 
-		.clk		     (clk			), 
-		.rst		     (gnd			),
-		.valid	     (vcc			),
-		.gain_value	(10'd1 << 8    ),
-		.sample_in	(eff_sample_in	),
-		.sample_out	(eff_sample_out)
+	effects_pipeline#(
+		.bits_per_level(12  ),
+          .bits_per_gain_frac(4   ),  // fractional part of input gain
+		.fxp_size      (out_res)
+	) ins_effs( 
+		.clk		     (clk			     ), 
+		.rst		     (gnd			     ),
+		.valid	     (vcc			     ),
+		.i_par_gain    (10'd1 << 8         ),
+		.i_sample	     (eff_sample_in	     ),
+		.o_sample      (eff_sample_out     )
 	);
 	
+	// toggle transparent mode
 	assign dac_sample_in = SW[3] ? eff_sample_in : eff_sample_out;
-	// in/out v konce 
 	
 	
-	logic[15: 0] dac_reg;
+	logic[out_res-1: 0] dac_reg;
 	
 	always_ff @(posedge clk) begin
 		if(rst)

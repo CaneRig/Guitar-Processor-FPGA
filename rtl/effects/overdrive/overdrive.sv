@@ -1,43 +1,47 @@
 module overdrive #(
-     parameter bits_per_level = 12,
-               bits_per_gain_frac = 4
+     parameter bits_per_level     = 12,
+               bits_per_gain_frac = 4,
+					fxp_size 			 = 16
 )(
      input clk,
 
-     input  [15: 0] i_sample,
-     input  [15: 0] i_gain,
-     output [31:0]  o_sample
+     input  [fxp_size - 1: 0] i_sample,
+     input  [fxp_size - 1: 0] i_gain,
+     output [fxp_size*2-1: 0]  o_sample
 );
+	  localparam d_fxp_size = fxp_size*2;
      // we assume that before `overdrive` flipflop already placed 
      
-     logic[31: 0] gained_signal;
-     logic[31: 0] clamped_signal;
-     wire [31: 0] ff_gain2ovrd_out;
+     logic[d_fxp_size-1: 0] gained_signal;
+     logic[d_fxp_size-1: 0] clamped_signal;
+     wire [d_fxp_size-1: 0] ff_gain2ovrd_out;
 
      gain #(
-          .bits_per_level(bits_per_gain_frac)
+          .bits_per_level	(bits_per_gain_frac),
+			 .fxp_size			(fxp_size)
      ) ins_gain (
-          .i_sample(i_sample), 
-          .i_gain(i_gain), 
-          .o_sample(gained_signal)
+          .i_sample	(i_sample), 
+          .i_gain		(i_gain), 
+          .o_sample	(gained_signal)
      );
 
      flipflop #(
-          .size(32)
+          .size	(d_fxp_size)
      ) ins_gain2ovrd_ff (
-          .clk(clk),
-          .valid('1),
-          .rst('0),
+          .clk		(clk),
+          .valid	('1),
+          .rst		('0),
 
-          .data(gained_signal),
-          .out(ff_gain2ovrd_out)
+          .i_data	(gained_signal),
+          .o_data	(ff_gain2ovrd_out)
      );
      
      overdrive_clamp #(
-               bits_per_level
+               .bits_per_level(bits_per_level),
+					.fxp_size		(fxp_size)
           ) ins_clamp (
-               .i_sample(ff_gain2ovrd_out), 
-               .o_sample(clamped_signal)
+               .i_sample		(ff_gain2ovrd_out), 
+               .o_sample		(clamped_signal)
           );
      
      assign o_sample = $signed(clamped_signal);

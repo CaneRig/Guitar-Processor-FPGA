@@ -1,9 +1,9 @@
 module flipflop#(
      parameter size = 16
 ) ( 
-     input clk,
-     input rst,
-     input valid,
+     input 									 clk,
+     input 									 rst,
+     input 									 valid,
      input  logic[size - 1    :0   ] i_data,
      output logic[size - 1    :0   ] o_data
 );

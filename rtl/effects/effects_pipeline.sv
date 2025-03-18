@@ -1,50 +1,52 @@
 module effects_pipeline #(
-     parameter bits_per_level = 12,
-               bits_per_gain_frac = 4  // fractional part of input gain
+     parameter bits_per_level 	 = 12,
+               bits_per_gain_frac = 4,  // fractional part of input gain
+					fxp_size				 = 16
 ) (
      input clk,
      input rst,
 
      // effects parameters 
-	input  [10: 0] i_par_gain,    // bits_per_gain_frac bits for fraction part, 10 - bits_per_gain_frac bits for integer part
+	  input  [10: 0] i_par_gain,    // bits_per_gain_frac bits for fraction part, 10 - bits_per_gain_frac bits for integer part
 
 
-     input          valid,
-     input  [11: 0] i_sample,
-     output [15: 0] o_sample
+     input          					  valid,
+     input  [bits_per_level-1	: 0] i_sample,
+     output [fxp_size-1			: 0] o_sample
 );
 
 // Extend i_sample from 12 bit to 16
-     wire [15   :0   ]   sample_in_extended;
+     wire [fxp_size-1   :0   ]   sample_in_extended;
      signed_expand#(
-          .operand_size(12),
-          .expansion_size(16-12)
+          .operand_size(bits_per_level),
+          .expansion_size(fxp_size-bits_per_level)
      ) i_in_sexpand (
           .in(i_sample),
           .out(sample_in_extended)
      );
 
 // Overdrive
-     logic [15  :0   ]   overdrive_in;
+     logic [fxp_size-1  :0   ]   overdrive_in;
 
      flipflop#(
-          .size(16)
+          .size(fxp_size)
      ) ins_overdrive_ff (
-          .clk(clk),
-          .rst(rst),
-          .valid(valid),
-          .data(sample_in_extended),
-          .out(overdrive_in)
+          .clk		(clk),
+          .rst		(rst),
+          .valid	(valid),
+          .i_data	(sample_in_extended),
+          .o_data	(overdrive_in)
      );
 
-     wire [31  :0   ] overdrive_out;
-     wire [15  :0   ] ovrd_gain;
+     wire [fxp_size*2-1  :0   ] overdrive_out;
+     wire [fxp_size - 1  :0   ] ovrd_gain;
 
      assign ovrd_gain = {'0, i_par_gain};
 
      overdrive #(
           .bits_per_level(bits_per_level),
-          .bits_per_gain_frac(bits_per_gain_frac)
+          .bits_per_gain_frac(bits_per_gain_frac),
+			 .fxp_size(fxp_size)
      ) ins_ovrd (
           .clk(clk),
           .i_sample(overdrive_in),
@@ -55,13 +57,13 @@ module effects_pipeline #(
 
 // Output
      flipflop#(
-          .size(16)
+          .size(fxp_size)
      ) ins_output_ff (
           .clk(clk),
           .rst(rst),
           .valid(valid),
-          .data(overdrive_out[15: 0]),
-          .out(o_sample)
+          .i_data(overdrive_out[fxp_size-1: 0]),
+          .o_data(o_sample)
      );
      
 endmodule
