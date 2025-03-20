@@ -6,3 +6,7 @@ run.sh
 tmp
 a.out
 test/data.wav
+venv/
+
+
+ir-cmpr.ipynb
