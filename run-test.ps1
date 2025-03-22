@@ -43,6 +43,9 @@ function Exit-Script {
      Set-Location $old_dir
      exit
 }
+function HLine {
+     Write-Output ("-" * $Host.UI.RawUI.WindowSize.Width)
+}
 
 if ($clear) {
      Remove-Item -Path "test/*" -Recurse
@@ -52,10 +55,26 @@ if ($clear) {
      Exit-Script
 }
 
-$files = Get-ChildItem -Recurse -Filter "rtl/*.sv" | % { $_.FullName }
-$testbenches = Get-ChildItem -Path "verification/" -Recurse -Filter "*.sv" | % { $_.FullName }
-$exclude = Get-ChildItem -Path "IP/" -Recurse -Filter "*.sv" | % { $_.FullName }
-$topmodule = Get-ChildItem -Filter "topmodule.sv" | % { $_.FullName }
+$files = Get-ChildItem -Path "rtl" -Recurse -Filter "*.sv" | % { $_.FullName }
+$testbenches = Get-ChildItem -Path "verification" -Recurse -Filter "*.sv" | % { $_.FullName }
+$exclude = Get-ChildItem -Path "rtl/IP" -Recurse -Filter "*.sv" | % { $_.FullName }
+$exclude += Get-ChildItem -Path "rtl/io" -Recurse -Filter "*.sv" | % { $_.FullName }
+$topmodule = Get-ChildItem -Path "rtl" -Filter "topmodule.sv" | % { $_.FullName }
+$thrdparties = Get-ChildItem -Path "thrd-patry" -Recurse -Directory | Where-Object { $_.Name -eq "rtl" } | ForEach-Object { Get-ChildItem -Path $_.FullName -Recurse -File | Where-Object { $_.Extension -eq ".sv" } } | Select-Object -ExpandProperty FullName
+
+HLine
+Write-Output "Source files: " $files
+HLine
+Write-Output "Thrd-party files: " $thrdparties
+HLine
+Write-Output "Testbenches files: " $testbenches
+HLine
+Write-Output "Excluded files: " $exclude
+HLine
+Write-Output "Topmodule file: " $topmodule
+HLine
+HLine
+HLine
 
 $files = $files | ? { $_ -notin $testbenches }
 $files = $files | ? { $_ -ne $topmodule }
@@ -69,11 +88,13 @@ foreach ($tb in $testbenches) {
      if($need_runtest -and ($runtest -ne $name)) {
           continue
      }
+
+     HLine
      Write-Output "Processing: " + $name          
 
      $tbp = $name + ".vvp"
 
-     iverilog -o test/vvp/$tbp -Icommon -g2012 $files $tb 
+     iverilog -o test/vvp/$tbp -Icommon -g2012 $files $thrdparties $tb 
 
      if ($?) {
           if ($testall -or ($name -eq $runtest)) {
