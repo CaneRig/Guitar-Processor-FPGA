@@ -12,3 +12,13 @@
 
 `define CHECK_POW2(VALUE, MSG) \
           `STATIC_CHECK((1<<$clog2(VALUE)) == VALUE, MSG)   
+
+
+
+function int fp2fx(input real value, input int frac_bits);
+    return int'(value * (1 << frac_bits));
+endfunction
+
+function real fx2fp(int value, int frac_bits);
+    return real'(value) / (1 << frac_bits);
+endfunction
