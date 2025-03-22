@@ -10,7 +10,7 @@ print('IR size:', ir_size)
 fxp_bits = 16
 fxp_frac_bits = 12
 
-ir_path = "C:\\Users\\origi\\Documents\\Innopolis\\ComputerArchitecture\\Guitar project\\sample\\OwnHammer_412_MAR-CB_V30-CH_T2_Room.wav"
+ir_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "ir\'s\\OwnHammer_412_MAR-CB_V30-CH_T2_Room.wav")
 
 
 # @numba.jit
@@ -84,7 +84,7 @@ def to_fxp(number: float) -> str:
 fxp_ir = list(map(to_fxp, ir_output))
 
 module = f'''module ir_weights(
-     output[{len(ir_output)-1}: 0][{fxp_bits-1}: 0] weights;
+     output[{len(ir_output)-1}: 0][{fxp_bits-1}: 0] weights
 );
 '''
 
