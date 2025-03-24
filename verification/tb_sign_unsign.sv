@@ -1,293 +1,109 @@
-//----------------------------------------------------------------------------
-// Testbench based on https://github.com/yuri-panchul/systemverilog-homework/
-//----------------------------------------------------------------------------
-
+`timescale 1ps/1ps
 `include "util.svh"
 
-module testbench;
-    localparam SLEN = 16;
-    //--------------------------------------------------------------------------
-    // Signals to drive Device Under Test - DUT
+module tb_sign_unsign();
+
+     parameter XLEN = 16;
+     localparam w_half_XLEN = 2 ** XLEN / 2;
+
+     // input 
+     logic          [XLEN-1: 0]  u2s_input;     
+     wire signed    [XLEN-1: 0]  u2s_output;
+
+     logic signed   [XLEN-1: 0]  s2u_input;     
+     wire           [XLEN-1: 0]  s2u_output;
+     logic fail;
+
+     // module instantiation
+     sign2unsign#(
+          .size(XLEN)
+     ) dut_s2u (
+          .in(s2u_input),
+          .out(s2u_output)
+     );
+     unsign2sign#(
+          .size(XLEN)
+     ) dut_u2s (
+          .in(u2s_input),
+          .out(u2s_output)
+     );
+
+     // subtests
+     function logic invertion_test(); // s2u(u2s(x)) = x and u2s(s2u(x)) = x
+          $display("\tInvertion subtest[stage 1]");
+
+          for (int i = 0; i < 2**16; i++) begin
+               #1;
+               u2s_input = i[XLEN-1: 0];
+               #1;
+               s2u_input = u2s_output;
+               #1;
+               if(u2s_input != s2u_output) begin
+                    $display("Error, invertion test fail, s2u(u2s(x)) != x: \n u2s_input=%d, u2s_output=%d, \ts2u_input=%d, s2u_output=%d\n", 
+                              u2s_input, u2s_output, s2u_input, s2u_output);
+                    return 0;
+               end
+          end
+
+          $display("\tInvertion subtest[stage 2]");
+          for (int i = 0; i < 2**16; i++) begin
+               #1;
+               s2u_input = i[XLEN-1: 0];
+               #1;
+               u2s_input = s2u_output;
+               #1;
+               if(s2u_input != u2s_output) begin
+                    $display("Error, invertion test fail, s2u(u2s(x)) != x: \n s2u_input=%d, s2u_output=%d\tu2s_input=%d, u2s_output=%d\n", 
+                              s2u_input, s2u_output, u2s_input, u2s_output);
+                    return 0;
+               end
+          end
+          return 1;
+
+     endfunction
+
+     function logic comparison_test();
+          logic failure;
+
+          failure = '0;
+          for (int i = 0; i < 2**16; i++) begin
+               #1;
+               u2s_input = i[XLEN-1: 0];
+               s2u_input = i[XLEN-1: 0];
+               #1;
+               if(u2s_output != $signed(i[XLEN-1: 0]) - w_half_XLEN) begin
+                    $display("Error, comparison test fail, u2s(x) != x - half: u2s_input=%d, u2s_output=%d, \texpected=%d, stage=%d\n", u2s_input, u2s_output, $signed(i[XLEN-1: 0]) - w_half_XLEN, i);
+                    failure = '1;
+               end
+               if(s2u_output != $signed(i[XLEN-1: 0]) + w_half_XLEN) begin
+                    $display("Error, comparison test fail, s2u(x) != x + half: s2u_input=%d, s2u_output=%d, \texpected=%d, stage=%d\n", s2u_input, s2u_output, $signed(i[XLEN-1: 0]) + w_half_XLEN, i);
+                    failure = '1;
+               end
+          end
+          return failure;
+     endfunction
+
+     initial begin
+          $display("sign/unsign - test");
+          $dumpfile("test-sign_unsign.vcd");
+          $dumpvars;
+
+          $display("Invertion test");
+          fail = invertion_test();
+
+          $display("Comparison test");
+          fail = fail | comparison_test();
+          
+          
+          if (fail == 1) begin
+               $display("[TEST FAILED]");
+          end
+          else begin
+               $display("[TEST PASSED]");
+          end
+     
+          $finish;
+     end
 
-    logic               clk;
-
-    // logic               arg_vld;
-    logic  [SLEN - 1:0] s2u_in;
-    logic  [SLEN - 1:0] u2s_in;
-
-    // wire                res_vld;
-    wire   [SLEN - 1:0] s2u_out;
-    wire   [SLEN - 1:0] u2s_out;
-
-    wire    rst;
-
-    //--------------------------------------------------------------------------
-    // Instantiating DUT
-
-    // [-2**15, 2**15 - 1] -> [0, 2**16 - 1]
-    sign2unsign #(
-            .size(SLEN)
-    ) dut_s2u (
-            .in(s2u_in),
-            .out(s2u_out)
-    );
-    // [0, 2**16 - 1] -> [-2**15, 2**15 - 1]
-    unsign2sign #(
-            .size(SLEN)
-    ) dut_u2s (
-            .in(u2s_in),
-            .out(u2s_out)
-    );
-
-    //--------------------------------------------------------------------------
-    // Driving clk
-
-    initial
-    begin
-        clk = '1;
-
-        forever
-        begin
-            # 5 clk = ~ clk;
-        end
-    end
-
-    //--------------------------------------------------------------------------
-    // Driving stimulus
-
-    localparam TIMEOUT = 500;
-    shortint unsigned s2u, u2s;
-
-    task run ();
-
-        localparam half = 2 ** SLEN;
-
-        $display ("--------------------------------------------------");
-        $display ("Running %m");
-
-        // Init and reset
-
-        // Direct testing - a single test
-        // arg_vld <= '1;
-
-        @ (posedge clk);
-
-        // Direct testing - a group of tests
-        for (shortint unsigned i = 0; i < 2**16-1; i+=177)
-        begin
-                        
-            assign s2u_in = i; // + half
-            assign u2s_in = i; // - half
-
-            @ (posedge clk);
-
-             assign s2u = $signed(i) + $signed(half);
-             assign u2s = $signed(i) - $signed(half);
-
-             if (u2s_out != u2s && 0==1)
-                 $display("u2s_out not match: %d -> %d, expected: %d", i, u2s_out, u2s);
-
-             if (s2u_out != s2u && 0==1)
-                 $display("s2u_out not match: %d -> %d, expected: %d", i, s2u_out, s2u);
-
-        end
-
-
-        // Random testing
-
-        repeat (20)
-        begin
-            s2u_in       <= (SLEN)'($urandom());
-
-            @ (posedge clk);
-
-            u2s_in <= s2u_out;
-
-            @ (posedge clk);
-
-            if(s2u_in != u2s_out)
-                $display("Invertable test error: s2u(%d -> %d) -> u2s(%d -> %d)", s2u_in, s2u_out, u2s_in, u2s_out);
-
-            $display("JI");
-        end
-
-
-    endtask
-
-    //--------------------------------------------------------------------------
-    // Running testbench
-
-    initial
-    begin
-        `ifdef __ICARUS__
-            // Uncomment the following line
-            // to generate a VCD file and analyze it using GTKwave
-
-            $dumpvars;
-        `endif
-
-        run ();
-
-        $finish;
-    end
-
-    //--------------------------------------------------------------------------
-    // Logging
-
-    int unsigned cycle = 0;
-
-    always @ (posedge clk)
-    begin
-        $write ("-- time %7d cycle %5d", $time, cycle);
-        cycle <= cycle + 1'b1;
-
-        // if (rst)
-        //     $write (" rst");
-        // else
-        //     $write ("    ");
-
-        // if (arg_vld)
-        //     // Optionnaly change to `PF_BITS optionally
-        //     $write (" arg %s %s %s", `PG_BITS (a), `PG_BITS (b), `PG_BITS (c) );
-        // else
-        //     $write ("                                     ");
-
-        // if (res_vld)
-        //     $write (" res %s", `PG_BITS(res) );
-
-        /// $write("in: ");
-
-        $display;
-    end
-
-    //--------------------------------------------------------------------------
-    // Modeling and checking
-
-    logic [SLEN - 1:0] queue [$];
-    logic [SLEN - 1:0] res_expected;
-
-    logic was_reset = 0;
-
-    // Blocking assignments are okay in this synchronous always block, because
-    // data is passed using queue and all the checks are inside that always
-    // block, so no race condition is possible
-
-    // verilator lint_off BLKSEQ
-
-    always @ (posedge clk)
-    begin
-        if (rst)
-        begin
-            queue = {};
-            was_reset = 1;
-        end
-        else if (was_reset)
-        begin
-            // if (arg_vld)
-            // begin
-            //     res_expected = $realtobits( $bitstoreal (b) * $bitstoreal (b) - 4 * $bitstoreal (a) * $bitstoreal (c) );
-
-            //     queue.push_back (res_expected);
-            // end
-
-            // if (res_vld)
-            // begin
-            //     if (queue.size () == 0)
-            //     begin
-            //         $display ("FAIL %s: unexpected result %s",
-            //             `__FILE__, `PG_BITS (res) );
-
-            //         $finish;
-            //     end
-            //     else
-            //     begin
-            //         `ifdef __ICARUS__
-            //             // Some version of Icarus has a bug, and this is a workaround
-            //             res_expected = queue [0];
-            //             queue.delete (0);
-            //         `else
-            //             res_expected = queue.pop_front ();
-            //         `endif
-
-            //         err_expected = is_err ( res_expected );
-            //         if (err !== err_expected )
-            //         begin
-            //             $display ("FAIL %s: error mismatch. Expected %s, actual %s",
-            //                 `__FILE__, `PB (err_expected), `PB (err) );
-
-            //             $finish;
-            //         end
-            //         else if ( ( err_expected === 1'b0 ) && ( res !== res_expected ) )
-            //         begin
-            //             $display ("FAIL %s: res mismatch. Expected %s, actual %s",
-            //                 `__FILE__, `PG_BITS (res_expected), `PG_BITS (res) );
-
-            //             $finish;
-            //         end
-            //     end
-            // end
-        end
-    end
-
-    // verilator lint_on BLKSEQ
-
-    //----------------------------------------------------------------------
-
-    final
-    begin
-        if (queue.size () == 0)
-        begin
-            $display ("PASS %s", `__FILE__);
-        end
-        else
-        begin
-            $write ("FAIL %s: data is left sitting in the model queue:",
-                `__FILE__);
-
-            for (int i = 0; i < queue.size (); i ++)
-                $write (" %h", queue [queue.size () - i - 1]);
-
-            $display;
-        end
-    end
-
-    //----------------------------------------------------------------------
-    // Performance counters
-
-    logic [32:0] n_cycles, arg_cnt, res_cnt;
-
-    always @ (posedge clk)
-        if (rst)
-        begin
-            n_cycles <= '0;
-            arg_cnt  <= '0;
-            res_cnt  <= '0;
-        end
-        else
-        begin
-            n_cycles <= n_cycles + 1'd1;
-
-            // if (arg_vld)
-            //     arg_cnt <= arg_cnt + 1'd1;
-
-            // if (res_vld)
-            //     res_cnt <= res_cnt + 1'd1;
-        end
-
-    //----------------------------------------------------------------------
-
-    final
-        $display ("\n\nnumber of transfers : arg %0d res %0d per %0d cycles",
-            arg_cnt, res_cnt, n_cycles);
-
-    //----------------------------------------------------------------------
-    // Setting timeout against hangs
-
-    initial
-    begin
-        repeat (TIMEOUT) @ (posedge clk);
-        $display ("FAIL %s: timeout!", `__FILE__);
-        $finish;
-    end
 
 endmodule
