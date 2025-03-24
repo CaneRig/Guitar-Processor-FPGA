@@ -1,13 +1,12 @@
 module audio_input #(
      parameter bit_depth      = 12,
-               target_depth   = 16
+               target_depth   = 16,
+               channel        = 0
 ) (
      input          clk,
      output         o_pll_clk,
 
-     input     [4             : 0] i_channel = 4'0,
-
-     output    [target_depth-1: 0] o_sample
+     output     [target_depth-1: 0] o_sample
 );
      wire [11			: 0] unsigned_sample; 
      wire [11			: 0] signed_sample; 
