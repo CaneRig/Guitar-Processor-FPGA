@@ -11,20 +11,25 @@ module signed_expand_tb;
      // Signals
      reg  [operand_size-1: 0]                   in;
      wire [operand_size+expansion_size-1: 0]    out;
+     logic [operand_size-1:0] test_value;
+     logic fail;
 
      // Instantiate the module under test
      signed_expand #(
           .operand_size(operand_size),
           .expansion_size(expansion_size)
-     ) uut (
+     ) dut (
           .in(in),
           .out(out)
      );
 
      // Testbench logic
      initial begin
-          logic [operand_size-1:0] test_value;
-     
+          $display("signed_expand - test");
+          $dumpfile("signed_expand.vcd");
+          $dumpvars;
+
+          fail = '0;
           // Loop through a range of values to test the sign extension
           for (int i = 0; i < (1 << operand_size); i = i + 1) begin
                test_value = i;
@@ -34,8 +39,8 @@ module signed_expand_tb;
      
                if (out !== { {expansion_size{test_value[operand_size-1]}}, test_value}) begin
                     $display("\nError: Expected %b, Got %b", { {expansion_size{test_value[operand_size-1]}}, test_value}, out);
-                    $display("[FAIL]");
-                    $finish;
+                    fail = '1;
+                    // $finish;
                end
           end
 
@@ -44,19 +49,22 @@ module signed_expand_tb;
           #1;
           if(out !== (operand_size+expansion_size)'(0)) begin
                $display("\nError: (S1) Expected %b, Got %b", (operand_size+expansion_size)'(0), out);
-               $display("[FAIL]");
-               $finish;
+               fail = '1;
           end
 
           in = {operand_size{1'b1}}; // All ones
           #1;
           if(out !== ~(operand_size+expansion_size)'(0)) begin
                $display("\nError: (S0) Expected %b, Got %b", ~(operand_size+expansion_size)'(0), out);
-               $display("[FAIL]");
-               $finish;
+               fail = '1;
           end
      
-          $display("[PASSED]");
+          #1;
+
+          if(fail == '1)
+               $display("[TEST FAILED]");
+          else
+               $display("[TEST PASSED]");
           $finish;
      end
 
