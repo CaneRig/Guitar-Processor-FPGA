@@ -1,6 +1,6 @@
 module gain #(
      parameter bits_per_level = 12,
-					fxp_size			= 16
+               fxp_size	     = 16
 ) (
      input  [fxp_size - 1: 0] i_sample,
      input  [fxp_size - 1: 0] i_gain,
