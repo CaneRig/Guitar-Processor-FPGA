@@ -5,83 +5,88 @@ typedef shortint signed sshort;
 
 module testbench();
 
-    sample_t data[];
+     sample_t data[];
 
-    integer unsigned     rate;
-    shortint unsigned    depth;
-    shortint unsigned    channel_count;
-    integer unsigned     sample_count;
-    logic done;
+     integer unsigned     rate;
+     shortint unsigned    depth;
+     shortint unsigned    channel_count;
+     integer unsigned     sample_count;
+     logic done;
 
-    wave_read_res_t res;
+     wave_read_res_t res;
 
-    logic[10: 0] gain_value;
-    logic clk;
-    logic rst;
-    logic valid;
-    logic[11: 0] sample_in; 
-    logic[15: 0] sample_out; 
-    
-    initial begin
-        clk = '0;
-        rst = '0;
-        valid = '1;
-        done = '0;
-        gain_value = 10'b100000000;
+     logic[10: 0] gain_value;
+     logic clk;
+     logic rst;
+     logic valid;
+     logic[11: 0] sample_in; 
+     logic[15: 0] sample_out; 
+
+     initial begin
+          $display("run_effects - test");
+          $dumpfile("run_effects.vcd");
+          $dumpvars;
+
+          clk = '0;
+          rst = '0;
+          valid = '1;
+          done = '0;
+          gain_value = 10'b100000000;
      //    rate = 44100;
 
-        read_wave("sample.wav", '0, res, data, rate, depth, channel_count, sample_count); 
-        $display("File read");
-        #1;
-        clk = '1;
-        #1;
-        clk = '0;
+          read_wave("sample.wav", '0, res, data, rate, depth, channel_count, sample_count); 
+          $display("File read");
+          #1;
+          clk = '1;
+          #1;
+          clk = '0;
 
-        foreach (data[i]) begin
+          foreach (data[i]) begin
           // for (int i=0; i<2**16; ++i) begin
-            #1;
-            sample_in = data[i] / 2 ** 4;
+               #1;
+               sample_in = data[i] / 2 ** 4;
           //   sample_in = i / 2 ** 4;
-            clk = '1; 
-            #1;
-            clk = '0; 
-        end
-        done = '1;
-    end
+               clk = '1; 
+               #1;
+               clk = '0; 
+          end
+          done = '1;
+     end
 
 
-    effects_pipeline i_eff_pipe(
-        .clk(clk),
-        .rst(rst),
-        .valid(valid),
-        .i_par_gain(gain_value),
-        .i_sample(sample_in),
-        .o_sample(sample_out)
-    );
+     effects_pipeline i_eff_pipe(
+          .clk(clk),
+          .rst(rst),
+          .valid(valid),
+          .i_par_gain(gain_value),
+          .i_sample(sample_in),
+          .o_sample(sample_out)
+     );
 
-    sample_t output_data[];
-    int read_sample_count = 200000;
+     sample_t output_data[];
+     int read_sample_count = 200000;
 
-    initial begin
-        $dumpfile("run-effect.vcd");
-        $dumpvars;
-        output_data = new[read_sample_count];
+     initial begin
+          
+          $dumpfile("run-effect.vcd");
+          $dumpvars;
+          output_data = new[read_sample_count];
 
-        #2;
+          #2;
 
-        for (int i=0; i<read_sample_count; ++i) begin
-            #2;
-            output_data[i] = $signed(sample_out);
+          for (int i=0; i<read_sample_count; ++i) begin
+               #2;
+               output_data[i] = $signed(sample_out);
 
-            // $display(" -- %d\t->\t%d", sshort'(sample_in), sample_out);
-        end
+               // $display(" -- %d\t->\t%d", sshort'(sample_in), sample_out);
+          end
 
-        #1;
-        write_wave("data.wav", 16, rate, output_data);
-        $display("File wrote");
+          #1;
+          write_wave("data.wav", 16, rate, output_data);
+          $display("File wrote");
 
-        $finish;
-    end 
+          $finish;
+     end 
 
      int times = 0;
      initial begin
