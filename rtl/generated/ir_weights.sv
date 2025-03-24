@@ -1,5 +1,5 @@
 module ir_weights(
-     output[255: 0][15: 0] weights;
+     output[255: 0][15: 0] weights
 );
 	assign weights[0] = 16'h0519;
 	assign weights[1] = 16'h0B13;
