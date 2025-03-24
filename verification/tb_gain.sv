@@ -1,15 +1,6 @@
 `timescale 10s/1s
 `include "util.svh"
 
-// functions and tasks
-function real abs(real a);
-     if(a < 0)
-          return -a;
-     else 
-          return a;
-endfunction
-
-
 // TEST gain
 module tb_gain();
 // settings
@@ -33,7 +24,7 @@ module tb_gain();
      gain#(
           .bits_per_level(bits_per_level),
           .fxp_size(fxp_size)
-     ) ins_gain_mul(
+     ) dut (
           .i_sample( sample_argument  ),
           .i_gain  ( gain_argument  ), 
           .o_sample( gain_mulOut)
@@ -74,8 +65,6 @@ real A, B;
 
           #1;
           for (int i=0; i<10000; ++i) begin
-               // A = $urandom_range(0, max_level) / real'(max_level);
-               // B = $urandom_range(0, max_level) / real'(max_level);
                B = real'($urandom()) / real'(2**31) - 1.0;
                A = real'($urandom()) / real'(2**30);
                
