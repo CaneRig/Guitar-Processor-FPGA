@@ -7,6 +7,6 @@ tmp
 a.out
 test/data.wav
 venv/
-
+*/__pycache__
 
 ir-cmpr.ipynb

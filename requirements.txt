@@ -1,3 +1,7 @@
 numpy 
 scipy 
 fxpmath
+cocotb
+pathlib
+argparse
+pytest
