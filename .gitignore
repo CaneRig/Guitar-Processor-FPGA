@@ -7,6 +7,8 @@ tmp
 a.out
 test/data.wav
 venv/
-*/__pycache__
 
 ir-cmpr.ipynb
+**/__pycache__
+**/results.xml
+**/dump.fst
