@@ -1,6 +1,15 @@
-module ir_weights(
-     output[255: 0][15: 0] weights
+`include "util.svh"
+
+module ir_weights#(
+	parameter test_vector_len = 256,
+		test_word_width =   16
+)(
+	output[255: 0][15: 0] weights
 );
+
+	`STATIC_CHECK(test_vector_len == 256, "Invalid vector length, expected: 256");
+	`STATIC_CHECK(test_word_width == 16, "Invalid word length, expected: 16");
+
 	assign weights[0] = 16'h0519;
 	assign weights[1] = 16'h0B13;
 	assign weights[2] = 16'h0E31;
