@@ -83,9 +83,18 @@ def to_fxp(number: float) -> str:
 
 fxp_ir = list(map(to_fxp, ir_output))
 
-module = f'''module ir_weights(
-     output[{len(ir_output)-1}: 0][{fxp_bits-1}: 0] weights
+module = f'''`include "util.svh"
+
+module ir_weights#(
+\tparameter test_vector_len = {len(ir_output)},
+\t\ttest_word_width =   {fxp_bits}
+)(
+\toutput[{len(ir_output)-1}: 0][{fxp_bits-1}: 0] weights
 );
+
+\t`STATIC_CHECK(test_vector_len == {len(ir_output)}, "Invalid vector length, expected: {len(ir_output)}");
+\t`STATIC_CHECK(test_word_width == {fxp_bits}, "Invalid word length, expected: {fxp_bits}");
+
 '''
 
 for i in range(len(fxp_ir)):
