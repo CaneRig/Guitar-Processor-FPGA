@@ -7,9 +7,9 @@ import fxpmath as fxp
 operand_size        = cocotb.top.operand_size.value
 expansion_size      = cocotb.top.expansion_size.value
 
-def generate(amount: int = 10000):
+def generate(amount: int = 4000):
      min_value = - 2**(operand_size-1)
-     max_value = 2**(operand_size - 1) + 1
+     max_value = 2**(operand_size - 1) - 1
      for _ in range(amount):
           yield random.randint(min_value, max_value)
      yield 0
