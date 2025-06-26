@@ -5,6 +5,7 @@ from pathlib import Path
 from cocotb.runner import get_runner
 
 proj_path = Path(__file__).resolve().parent
+cocotb_tests_path = proj_path / 'sim' / 'cocotb'
 
 
 def load_test_names() -> dict[str, str]:
@@ -42,7 +43,7 @@ def run_test(dut_path: str, testname = '$undefined$', waves=True, gui=True):
      )
 
      print(f'----------------TESTING: {testname}')
-     runner.test(hdl_toplevel="dut", test_dir=test_dir, test_module="tester", waves=waves, gui=gui, build_dir=build_path)
+     runner.test(hdl_toplevel="dut", test_module="tester", waves=waves, gui=gui, test_dir=test_dir)
 
 def list_tests():
 
@@ -51,6 +52,22 @@ def list_tests():
      for i in tests:
           print('-\t', i)
 
+def clear():
+     cache_files = [
+          *cocotb_tests_path.glob('*/dump.fst'),
+          *cocotb_tests_path.glob('*/results.xml')
+     ]
+     cache_dirs = [
+          *cocotb_tests_path.glob('*/__pycache__')
+     ]
+     for file in cache_files:
+          print('Removing:', file)
+          os.remove(file)
+     for dire in cache_dirs:
+          print('Removing:', dire)
+          os.rmdir(dire)
+
+     print('Removed', len(cache_files), 'files,', len(cache_dirs), 'directories')
 
 if __name__ == "__main__":
      parser = argparse.ArgumentParser()
@@ -66,10 +83,17 @@ if __name__ == "__main__":
           '-t', '--test',
           default=None
      )
+     parser.add_argument(
+          '--clear',
+          default='store_true'
+     )
 
      args = parser.parse_args()
 
-     if args.list:
+     if args.clear:
+          clear()
+          exit()
+     elif args.list:
           list_tests()
           exit()
      if args.testall:
