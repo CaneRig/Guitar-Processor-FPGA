@@ -1,7 +1,7 @@
 import os
 import argparse
 from pathlib import Path
-
+import shutil
 from cocotb.runner import get_runner
 
 proj_path = Path(__file__).resolve().parent
@@ -65,7 +65,7 @@ def clear():
           os.remove(file)
      for dire in cache_dirs:
           print('Removing:', dire)
-          os.rmdir(dire)
+          shutil.rmtree(dire)
 
      print('Removed', len(cache_files), 'files,', len(cache_dirs), 'directories')
 
@@ -85,7 +85,7 @@ if __name__ == "__main__":
      )
      parser.add_argument(
           '--clear',
-          default='store_true'
+          action='store_true'
      )
 
      args = parser.parse_args()
@@ -96,12 +96,14 @@ if __name__ == "__main__":
      elif args.list:
           list_tests()
           exit()
-     if args.testall:
+     elif args.testall:
           tests = load_test_names()
           for i in tests:
                run_test(tests[i])
           exit()
-     if args.test != None:
+     elif args.test != None:
           tests = load_test_names()
           run_test(tests[args.test])
           exit()
+
+     print('Nothing to do')
