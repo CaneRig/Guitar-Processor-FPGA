@@ -1,13 +1,13 @@
 module effects_pipeline #(
      parameter bits_per_level 	 = 12,
                bits_per_gain_frac = 4,  // fractional part of input gain
-					fxp_size				 = 16
+               fxp_size				 = 16
 ) (
      input clk,
      input rst,
 
      // effects parameters 
-	  input  [10: 0] i_par_gain,    // bits_per_gain_frac bits for fraction part, 10 - bits_per_gain_frac bits for integer part
+     input  [10: 0] i_par_gain,    // bits_per_gain_frac bits for fraction part, 10 - bits_per_gain_frac bits for integer part
 
 
      input          					  valid,
@@ -46,9 +46,11 @@ module effects_pipeline #(
      overdrive #(
           .bits_per_level(bits_per_level),
           .bits_per_gain_frac(bits_per_gain_frac),
-			 .fxp_size(fxp_size)
+          .fxp_size(fxp_size)
      ) ins_ovrd (
           .clk(clk),
+          .rst(rst),
+          
           .i_sample(overdrive_in),
           .i_gain(ovrd_gain),
           .o_sample(overdrive_out)

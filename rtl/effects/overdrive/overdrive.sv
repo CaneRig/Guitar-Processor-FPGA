@@ -1,9 +1,10 @@
 module overdrive #(
-     parameter bits_per_level     = 12,
-               bits_per_gain_frac = 4,
-					fxp_size 			 = 16
+     parameter bits_per_level      = 12,
+               bits_per_gain_frac  = 4,
+               fxp_size 		     = 16
 )(
      input clk,
+     input rst,
 
      input  [fxp_size - 1: 0] i_sample,
      input  [fxp_size - 1: 0] i_gain,
@@ -29,8 +30,8 @@ module overdrive #(
           .size	(d_fxp_size)
      ) ins_gain2ovrd_ff (
           .clk		(clk),
+          .rst		(rst),
           .valid	('1),
-          .rst		('0),
 
           .i_data	(gained_signal),
           .o_data	(ff_gain2ovrd_out)
