@@ -22,15 +22,15 @@ def run_test(dut_path: str, testname = '$undefined$', waves=True, gui=True):
      test_dir = Path(dut_path).parent
 
      sources = [
-          *rtl_path.glob('utility/*/*.sv'),
-          *rtl_path.glob('effects/*/*.sv'),
-          *rtl_path.glob('generated/*/*.sv'),
+          *rtl_path.glob('utility/**/*.sv'),
+          *rtl_path.glob('effects/**/*.sv'),
+          *rtl_path.glob('generated/**/*.sv'),
      ]
      sources = list(map(lambda x: str(x), sources))
      sources.append(dut_path)
 
      headers = [
-        *incl_path.rglob('*.svh'),
+        incl_path,
      ]
      
      runner = get_runner(sim)
