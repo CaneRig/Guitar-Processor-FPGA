@@ -37,7 +37,7 @@ module overdrive #(
           .o_data	(ff_gain2ovrd_out)
      );
      
-     overdrive_clamp #(
+     ovrd_piecevise_clamp #(
                .bits_per_level(bits_per_level),
                .fxp_size		(fxp_size*2)
           ) ins_clamp (

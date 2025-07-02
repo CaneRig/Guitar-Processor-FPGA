@@ -1,4 +1,4 @@
-module overdrive_clamp #(
+module ovrd_piecevise_clamp #(
 	parameter 	bits_per_level = 12,
                     fxp_size			= 32
 ) (
