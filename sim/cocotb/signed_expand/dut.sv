@@ -14,7 +14,7 @@ module dut();
      signed_expand #(
           .operand_size(operand_size),
           .expansion_size(expansion_size)
-     ) i_dut (
+     ) ins_dut (
           .in(inp),
           .out(out)
      );
