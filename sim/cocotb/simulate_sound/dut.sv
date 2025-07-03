@@ -2,6 +2,8 @@
 
 module dut();
 
+     initial $dumpvars;
+
      parameter bits_per_level 	     = 12,
                bits_per_gain_frac       = 4,  // fractional part of input gain
                fxp_size				= 16;
