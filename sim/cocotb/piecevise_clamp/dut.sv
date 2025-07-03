@@ -2,11 +2,13 @@
 
 module dut();
 
+     initial $dumpvars;
+
      parameter  	bits_per_level      = 12,
                     fxp_size			= 32;
 
-     logic [fxp_size-1:	0] i_sample;
-     logic [fxp_size-1:	0] o_sample;
+     logic signed [fxp_size-1:	0] i_sample;
+     logic signed [fxp_size-1:	0] o_sample;
 
      ovrd_piecevise_clamp #(
           .bits_per_level(bits_per_level),
