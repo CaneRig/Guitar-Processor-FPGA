@@ -6,7 +6,7 @@
 
 module ovrd_piecevise_clamp #(
 	parameter 	bits_per_level = 12,
-                    fxp_size			= 32
+                    fxp_size		= 32
 ) (
 	input  signed  [fxp_size-1:	0] i_sample,
 	output signed  [fxp_size-1:	0] o_sample
@@ -14,6 +14,8 @@ module ovrd_piecevise_clamp #(
 
      localparam FXP_ONE = $signed((fxp_size)'((fxp_size)'(1) << bits_per_level));
      localparam FXP_CLAMED_VALUE = $signed((fxp_size)'(FXP_ONE * 3 / 4));
+
+     initial $display("FXP_ONE = %d, FXP_CLAMPED_VALUE = %d\n\n", FXP_ONE, FXP_CLAMED_VALUE);
 
      /// Wires 
 	logic clamp_lower; // x <= -1

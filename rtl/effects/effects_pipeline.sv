@@ -11,7 +11,7 @@ module effects_pipeline #(
 
 
      input          					  valid,
-     input  [bits_per_level-1	: 0] i_sample,
+     input  [bits_per_level-1	     : 0] i_sample,
      output [fxp_size-1			: 0] o_sample
 );
 
