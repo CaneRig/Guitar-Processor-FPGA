@@ -7,10 +7,16 @@ from cocotb.handle import SimHandleBase
 from cocotb.triggers import RisingEdge, ClockCycles
 import fxpmath as fxp
 import numpy as np
+import pathlib
+import time
 from scipy.io import wavfile
+import matplotlib.pyplot as plt
 
-INPUT_PATH = 'sample.wav'
-OUTPUT_PATH = 'output.wav'
+TEST_PATH      = pathlib.Path(__file__).parent
+INPUT_PATH     = str(TEST_PATH / 'sample.wav')
+OUTPUT_PATH    = str(TEST_PATH / 'output.wav')
+
+GAIN_VALUE = 4
 
 bits_per_level      = cocotb.top.bits_per_level.value
 bits_per_gain_frac  = cocotb.top.bits_per_gain_frac.value
@@ -18,33 +24,104 @@ fxp_size            = cocotb.top.fxp_size.value
 
 
 freq, input_samples = wavfile.read(INPUT_PATH)
-input_samples = (input_samples.astype(np.float32) / np.max(input_samples))[0]
+input_samples = input_samples[:, 0]
+
+input_samples = input_samples.astype(np.float32)
+input_samples = (input_samples / np.abs(input_samples).max())
+
+print(f'File \"{INPUT_PATH}\" is opened with {input_samples.shape} size')
 
 def make_fxp(value):
      return fxp.Fxp(value, signed=True, n_word=bits_per_level, n_frac=bits_per_level)
 
+def bin2int(b: str) -> int:
+     if b[0] == '1':
+          b = -(int(''.join(list(map(lambda x: {'0': '1', '1': '0'}[x], b))), 2) + 1)
+     else:
+          b = int(b, 2)
+     return b
+
+print(f'Normalized audion to {make_fxp(input_samples.max())}')
+
+async def reset(clk: SimHandleBase, rst: SimHandleBase):
+    rst.value = 1
+    for _ in range(3):
+        await RisingEdge(clk)
+    rst.value = 0
+    await RisingEdge(clk)
+
 async def send_data(clk: SimHandleBase, sample_in: SimHandleBase, logger):
      sample_id = 0
+
+     start_time = time.time()
      for i in input_samples:
           sample_id += 1
           if sample_id % (freq // 2) == 0:
-               logger.log(f'Sample: #{sample_id}')
+               current_time = time.time()
+               elapsed = current_time - start_time
+               speed = sample_id / elapsed
+               print(f'Sample: #{sample_id}/#{len(input_samples)}, speed: {speed: .2f} sample/s, remained: {(len(input_samples) - sample_id) / speed: .2f} s')
           
           await RisingEdge(clk)
           sample_in.value = BinaryValue(make_fxp(i).bin())
 
-async def receive_data(clk: SimHandleBase, sample_out: SimHandleBase):
-     samples = []
+async def receive_data(clk: SimHandleBase, sample_out: SimHandleBase, queue: Queue):
      for _ in range(len(input_samples) + 1024):
           await RisingEdge(clk)
-          samples.append(sample_out.value)
-     samples = np.array([[float(make_fxp('b' + ''.join(i.binstr_))) for i in samples]])
+
+          value = sample_out.value.binstr
+          queue.put_nowait(value)
+     await RisingEdge(clk)
+     queue.put_nowait('END')
+
+async def save_data(queue: Queue):
+     samples = []
+     delay = None
+     delay_counter = 0
+
+     while True:
+          value = await queue.get()
+
+          if value == 'END':
+               break
+          if 'x' in value:
+                print('\'x is found in output pin -> skipping sample')
+                if delay_counter is not None :
+                    delay_counter += 1
+          else:
+               if delay_counter is not None:
+                    delay_counter, delay = None, delay_counter
+               fvalue = fxp.Fxp(0, signed=True, n_word=fxp_size, n_frac=bits_per_level).from_bin(value)
+               samples.append(float(fvalue))
+     samples = (np.array(samples) * 2**15).astype(np.int16)
      wavfile.write(OUTPUT_PATH, freq, samples)
+     print(f'File saved at \"{OUTPUT_PATH}\", total samples: {len(samples)}, delay: {delay}')
+
 
 @cocotb.test
 async def tester(dut):
-     corr_clk  = cocotb.start_soon(Clock(dut.clk, 10, units="ns").start()) 
-     corr_send = cocotb.start_soon(send_data(dut.clk, dut.in_sample, dut._log))
-     corr_reic = cocotb.start_soon(receive_data(dut.clk, dut.out_sample))
+     ready_samples = Queue()
+
+     dut.gain.value = BinaryValue(fxp.Fxp(GAIN_VALUE, signed=True, n_word=11, n_frac=bits_per_gain_frac).bin())
+
+     t_clk  = cocotb.start_soon(Clock(dut.clk, 2*len(input_samples)).start()) 
+     await reset(dut.clk, dut.rst)
      
-     await ClockCycles(dut.clk, 30)
+     t_send = cocotb.start_soon(send_data(dut.clk, dut.in_sample, dut._log))
+     t_recv = cocotb.start_soon(receive_data(dut.clk, dut.out_sample, ready_samples))
+     # t_save  = cocotb.start_soon(save_data(ready_samples))
+     
+     await Timer(1)
+
+     await save_data(ready_samples)
+
+     # wait for the sender/receiver to finish
+     # await t_send
+     # await t_recv
+
+     # signal the saver to wrap up and then wait for it
+     # ready_samples.put_nowait("END")
+     # await t_save
+
+     # optional: give a few more cycles for safety
+     await ClockCycles(dut.clk, 10)
