@@ -12,3 +12,4 @@ ir-cmpr.ipynb
 **/__pycache__
 **/results.xml
 **/dump.fst
+output.wav
