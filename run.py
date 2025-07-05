@@ -15,7 +15,8 @@ def load_test_names() -> dict[str, str]:
      return dict(map(lambda x: (str(x.parent.name), x), this_tests))
 
 def run_test(dut_path: str, testname = '$undefined$', waves=True, gui=True):
-     sim = os.getenv("SIM", "icarus")
+     sim = os.getenv("SIM", "icarus") 
+     # sim = os.getenv("SIM", "questa") #modelsim
      rtl_path = proj_path/'rtl'
      incl_path = proj_path/'common'
      build_path = proj_path/'test'
