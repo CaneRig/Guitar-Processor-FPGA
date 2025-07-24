@@ -2,7 +2,8 @@
 
 module topmodule#(
   parameter	clk_mhz   = 13,
-			out_res  = 16  // resolution of output signal
+				out_res  = 16,  // resolution of output signal
+				target_freq  = 48  // khz
       
   )(
 		input MAX10_CLK1_50,
@@ -16,6 +17,7 @@ module topmodule#(
 
 	wire rst;
 	wire clk;
+	wire valid;
 	wire AO_mclk;  // GPIO-33
 	wire AO_bclk;  // GPIO-31
 	wire AO_lrclk;  // GPIO-27
@@ -94,7 +96,15 @@ module topmodule#(
 				LEDR[8:0] = adc_sample_out;
 	end
   
-
+	
+	valid_generator#(
+		.CLK_FREQ(clk_mhz*1000_000),
+		.TARET_FREQ(target_freq * 1000)
+	) ins_vgen (
+		.clk(clk),
+		.valid(valid),
+		.rst(rst)
+	);
 
 
 // IO wires
@@ -133,7 +143,7 @@ module topmodule#(
 	) ins_effs( 
 		.clk		     (clk			     ), 
 		.rst		     (gnd			     ),
-		.valid	     (vcc			     ),
+		.valid	     (valid		     ),
 		.i_par_gain    (gain_value),
 		.i_sample	     (eff_sample_in	     ),
 		.o_sample      (eff_sample_out     ),
