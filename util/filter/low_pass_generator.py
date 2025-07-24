@@ -96,14 +96,16 @@ code += ') >>> FXP_FRAC;\n'
 code += f'''
 \tassign o_sample = y_0;
 
-\tlogic[{order}: 0] valid_reg;
+\tlogic[1:0] valid_reg;
 \talways_ff @(posedge clk) begin
 \t\tif (rst) 
 \t\t\tvalid_reg <= '0;
 \t\telse if(i_valid)
-\t\t\tvalid_reg <= {{valid_reg[{order}:0], 1'b1}};
+\t\t\tvalid_reg <= {{1\'b1, valid_reg[0]}};
+\t\telse 
+\t\t\tvalid_reg <= {{1\'b0, valid_reg[0]}};
 \tend
-\tassign o_valid = valid_reg[{order}];
+\tassign o_valid = valid_reg[1];
 '''
 code += 'endmodule\n'
 

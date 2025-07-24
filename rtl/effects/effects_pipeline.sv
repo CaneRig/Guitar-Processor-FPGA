@@ -10,10 +10,10 @@ module effects_pipeline #(
      input  [10: 0] i_par_gain,    // bits_per_gain_frac bits for fraction part, 10 - bits_per_gain_frac bits for integer part
 
 
-     input          					  valid,
+     input  i_valid,
      input  [bits_per_level-1	     : 0] i_sample,
      output [fxp_size-1			: 0] o_sample,
-	  output o_overflow
+     output o_valid
 );
 
 // Extend i_sample from 12 bit to 16
@@ -34,7 +34,7 @@ module effects_pipeline #(
      ) ins_overdrive_ff (
           .clk		(clk),
           .rst		(rst),
-          .valid	(valid),
+          .valid	(i_valid),
           .i_data	(sample_in_extended),
           .o_data	(overdrive_in)
      );
@@ -51,11 +51,12 @@ module effects_pipeline #(
      ) ins_ovrd (
           .clk(clk),
           .rst(rst),
-          
+          .i_valid(i_valid),
+          .o_valid(o_valid_ovr),
+
           .i_sample(overdrive_in * 2),
           .i_gain(ovrd_gain),
-          .o_sample(overdrive_out),
-			 .o_overflow(o_overflow)
+          .o_sample(overdrive_out)
      );
      //assign overdrive_out = overdrive_in;
 
@@ -65,9 +66,10 @@ module effects_pipeline #(
      ) ins_output_ff (
           .clk(clk),
           .rst(rst),
-          .valid(valid),
+          .valid(o_valid_ovr),
           .i_data(overdrive_out[fxp_size-1: 0]),
           .o_data(o_sample)
      );
      
+     assign o_valid = o_valid_ovr;
 endmodule

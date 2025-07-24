@@ -5,11 +5,12 @@ module overdrive #(
 )(
      input clk,
      input rst,
+     input i_valid,
+     output o_valid,
 
      input  [fxp_size - 1: 0] i_sample,
      input  [fxp_size - 1: 0] i_gain,
-     output [fxp_size*2-1: 0]  o_sample,
-	  output o_overflow
+     output [fxp_size*2-1: 0]  o_sample
 );
 	  localparam d_fxp_size = fxp_size*2;
      // we assume that before `overdrive` flipflop already placed 
@@ -35,7 +36,7 @@ module overdrive #(
      ) ins_gain2ovrd_ff (
           .clk		(clk),
           .rst		(rst),
-          .valid	('1),
+          .valid	(valid),
 
           .i_data	(gained_signal),
           .o_data	(ff_gain2ovrd_out)
@@ -54,6 +55,7 @@ module overdrive #(
           );
      
      assign o_sample = $signed(clamped_signal_0);
-	  assign o_overflow = ~((&clamped_signal_0[31:16]) | (&(~clamped_signal_0[31:16])));
+	//   assign o_overflow = ~((&clamped_signal_0[31:16]) | (&(~clamped_signal_0[31:16])));
+     assign o_valid = i_valid;
      
 endmodule 
