@@ -1,10 +1,11 @@
 module audio_input #(
      parameter bit_depth      = 12,
-               target_depth   = 16,
-               channel        = 0
+               target_depth   = 16
+               //channel        = 0
 ) (
      input          clk,
-     output         o_pll_clk,
+	  input [1:0] channel,
+     output      o_pll_clk,
 
      output     [target_depth-1: 0] o_sample
 );
@@ -15,12 +16,14 @@ module audio_input #(
      // clock
      PLL ins_pll(
 		.inclk0	(clk		),
-		.c0		(pll_clk	)
+		.c0		(pll_clk	),
 	);
+	
+	assign  o_pll_clk = pll_clk;
 
      // read input
 	fiftyfivenm_adcblock_top_wrapper ins_ip_adc (
-		.chsel				( channel 				),
+		.chsel				( 2'b10 				),
 		.soc					( '1						),
 		.usr_pwd				( '0						),
 		.tsen				( '0						),

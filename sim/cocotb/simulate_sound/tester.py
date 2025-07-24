@@ -10,13 +10,12 @@ import numpy as np
 import pathlib
 import time
 from scipy.io import wavfile
-import matplotlib.pyplot as plt
 
 TEST_PATH      = pathlib.Path(__file__).parent
 INPUT_PATH     = str(TEST_PATH / 'sample.wav')
 OUTPUT_PATH    = str(TEST_PATH / 'output.wav')
 
-GAIN_VALUE = 4
+GAIN_VALUE = 20
 
 bits_per_level      = cocotb.top.bits_per_level.value
 bits_per_gain_frac  = cocotb.top.bits_per_gain_frac.value
@@ -25,6 +24,9 @@ fxp_size            = cocotb.top.fxp_size.value
 
 freq, input_samples = wavfile.read(INPUT_PATH)
 input_samples = input_samples[:, 0]
+input_samples = input_samples[:len(input_samples)//10]
+
+# input_samples = np.linspace(-1, 1, 1024)
 
 input_samples = input_samples.astype(np.float32)
 input_samples = (input_samples / np.abs(input_samples).max())
@@ -76,7 +78,7 @@ async def receive_data(clk: SimHandleBase, sample_out: SimHandleBase, queue: Que
 
 async def save_data(queue: Queue):
      samples = []
-     delay = None
+     delay_stopped = False
      delay_counter = 0
 
      while True:
@@ -86,23 +88,23 @@ async def save_data(queue: Queue):
                break
           if 'x' in value:
                 print('\'x is found in output pin -> skipping sample')
-                if delay_counter is not None :
+                if not delay_stopped:
                     delay_counter += 1
           else:
-               if delay_counter is not None:
-                    delay_counter, delay = None, delay_counter
                fvalue = fxp.Fxp(0, signed=True, n_word=fxp_size, n_frac=bits_per_level).from_bin(value)
                samples.append(float(fvalue))
+     print('Max samples: ', max(samples))
      samples = (np.array(samples) * 2**15).astype(np.int16)
      wavfile.write(OUTPUT_PATH, freq, samples)
-     print(f'File saved at \"{OUTPUT_PATH}\", total samples: {len(samples)}, delay: {delay}')
+     print(f'File saved at \"{OUTPUT_PATH}\", total samples: {len(samples)}, delay: {delay_counter}')
 
 
 @cocotb.test
 async def tester(dut):
      ready_samples = Queue()
 
-     dut.gain.value = BinaryValue(fxp.Fxp(GAIN_VALUE, signed=True, n_word=11, n_frac=bits_per_gain_frac).bin())
+     # dut.gain.value = BinaryValue(fxp.Fxp(GAIN_VALUE, signed=True, n_word=11, n_frac=bits_per_gain_frac).bin())
+     dut.gain.value = BinaryValue('00000101111')
 
      t_clk  = cocotb.start_soon(Clock(dut.clk, 2*len(input_samples)).start()) 
      await reset(dut.clk, dut.rst)

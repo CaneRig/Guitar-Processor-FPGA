@@ -12,7 +12,8 @@ module effects_pipeline #(
 
      input          					  valid,
      input  [bits_per_level-1	     : 0] i_sample,
-     output [fxp_size-1			: 0] o_sample
+     output [fxp_size-1			: 0] o_sample,
+	  output o_overflow
 );
 
 // Extend i_sample from 12 bit to 16
@@ -51,9 +52,10 @@ module effects_pipeline #(
           .clk(clk),
           .rst(rst),
           
-          .i_sample(overdrive_in),
+          .i_sample(overdrive_in * 2),
           .i_gain(ovrd_gain),
-          .o_sample(overdrive_out)
+          .o_sample(overdrive_out),
+			 .o_overflow(o_overflow)
      );
      //assign overdrive_out = overdrive_in;
 

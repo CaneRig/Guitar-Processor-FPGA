@@ -1,7 +1,7 @@
 // AO - audio output
 
 module topmodule#(
-  parameter	clk_mhz   = 50,
+  parameter	clk_mhz   = 13,
 			out_res  = 16  // resolution of output signal
       
   )(
@@ -14,14 +14,13 @@ module topmodule#(
 		inout [35: 0] GPIO
   );
 
-  	wire clk;
 	wire rst;
+	wire clk;
 	wire AO_mclk;  // GPIO-33
 	wire AO_bclk;  // GPIO-31
 	wire AO_lrclk;  // GPIO-27
 	wire AO_sdata;  // GPIO-29
 
-	assign clk = MAX10_CLK1_50;
 	assign rst = SW[9];
 	assign GPIO[33] = AO_mclk;
 	assign GPIO[31] = AO_bclk;
@@ -32,6 +31,70 @@ module topmodule#(
   localparam gnd = '0;
   localparam vcc = '1;
   localparam ch_selector = 5'd1;
+  
+  
+  // gain controll
+  localparam gain_increment = 16'd1;
+  
+  
+  logic[20: 0] trigger_counter;
+  logic[15: 0] gain_value;
+  logic[15: 0] post_gain_value;
+  logic[20: 0] post_trigger_counter;
+ 
+  
+  always_ff @(posedge clk) begin
+	if(rst) begin 
+		trigger_counter <= {1'b1, 20'd0};
+		gain_value <= 10'd1;
+	end
+	else if (trigger_counter[20] & SW[0]) begin
+		trigger_counter <= '0;
+		if(~KEY[0])
+			gain_value <= gain_value + gain_increment;
+		else if(~KEY[1])
+			gain_value <= gain_value - gain_increment;
+			
+	end else begin
+		if(SW[0])
+			trigger_counter <= trigger_counter + 21'd1;
+		else
+			trigger_counter <= {1'b1, 20'd0};
+	end
+  end
+  
+  always_ff @(posedge clk) begin
+	if(rst) begin 
+		post_trigger_counter <= {1'b1, 20'd0};
+		post_gain_value <= 10'd1;
+	end
+	else if (post_trigger_counter[20] & SW[1]) begin
+		post_trigger_counter <= '0;
+		if(~KEY[0])
+			post_gain_value <= post_gain_value + gain_increment;
+		else if(~KEY[1])
+			post_gain_value <= post_gain_value - gain_increment;
+			
+	end else begin
+		if(SW[1])
+			post_trigger_counter <= post_trigger_counter + 21'd1;
+		else
+			post_trigger_counter <= {1'b1, 20'd0};
+	end
+  end
+  
+  
+  // led display
+  	always_comb begin
+		if(SW[0])
+				LEDR[8:0] = gain_value[9:0];
+		else if (SW[1])
+				LEDR[8:0] = post_gain_value;
+		else	
+				LEDR[8:0] = adc_sample_out;
+	end
+  
+
 
 
 // IO wires
@@ -43,14 +106,25 @@ module topmodule#(
           .bit_depth     (12            ),
           .target_depth  (out_res       )
      ) ins_audio_in (
-          .clk(clk),
+          .clk(MAX10_CLK1_50),
+			 .o_pll_clk(clk),
+			 .channel(SW[1:0]),
           .o_sample      (adc_sample_out)
      );
+	  
+	  //assign LEDR[8:0] = adc_sample_out[9:0];
+	  
+		unsign2sign #(
+			.size(16)
+		) ins_s2u (
+			.in	(adc_sample_out),
+			.out	(eff_sample_in)
+		);
 
 	
 // effects
 	wire [out_res-1: 0] eff_sample_in;
-	wire [out_res-1: 0] eff_sample_out;
+	wire [12-1: 0] eff_sample_out;
 
 	effects_pipeline#(
 		.bits_per_level(12  ),
@@ -60,9 +134,10 @@ module topmodule#(
 		.clk		     (clk			     ), 
 		.rst		     (gnd			     ),
 		.valid	     (vcc			     ),
-		.i_par_gain    (10'd1 << 8         ),
+		.i_par_gain    (gain_value),
 		.i_sample	     (eff_sample_in	     ),
-		.o_sample      (eff_sample_out     )
+		.o_sample      (eff_sample_out     ),
+		.o_overflow		(LEDR[9])
 	);
 	
 	// toggle transparent mode
@@ -84,17 +159,19 @@ module topmodule#(
 	
   
   	sign2unsign #(
-		.size(12)
-     ) ins_s2u (
+		.size(out_res)
+     ) ins_u2s (
 		.in	(dac_reg),
 		.out	(dac_unsign_out)
 	);
+	
+	
      i2s_audio_out # (
-               .clk_mhz ( clk_mhz   )
+               .clk_mhz ( clk_mhz   )		
      ) ins_audio_out (
                .clk     ( clk   	 ),
                .reset   ( rst       	 ),
-               .data_in ( dac_unsign_out),
+               .data_in ( dac_unsign_out * post_gain_value		),
                .mclk    ( AO_mclk   	 ), // JP1 pin 38
                .bclk    ( AO_bclk   	 ), // JP1 pin 36
                .lrclk   ( AO_lrclk  	 ), // JP1 pin 32

@@ -2,7 +2,7 @@
 // 'o_res' have double width (i.e. operand_size*2)
 module fixed_multiply#(
     parameter  fractional_size     = 12,
-               operand_size        = 32,
+               operand_size        = 16,
                expansion_size      = operand_size
 ) (
     input  logic signed[operand_size - 1: 0] i_a, 

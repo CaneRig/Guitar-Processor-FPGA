@@ -4,7 +4,7 @@ import scipy as sc
 import fxpmath as fx
 import os
 
-ir_size = 256
+ir_size = 128
 print('IR size:', ir_size)
 
 fxp_bits = 16
