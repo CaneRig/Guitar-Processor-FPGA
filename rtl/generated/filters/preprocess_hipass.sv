@@ -80,12 +80,14 @@ module preprocess_hipass(
 
 	assign o_sample = y_0;
 
-	logic[4: 0] valid_reg;
+	logic[1:0] valid_reg;
 	always_ff @(posedge clk) begin
 		if (rst) 
 			valid_reg <= '0;
 		else if(i_valid)
-			valid_reg <= {valid_reg[4:0], 1'b1};
+			valid_reg <= {1'b1, valid_reg[0]};
+		else 
+			valid_reg <= {1'b0, valid_reg[0]};
 	end
-	assign o_valid = valid_reg[4];
+	assign o_valid = valid_reg[1];
 endmodule
