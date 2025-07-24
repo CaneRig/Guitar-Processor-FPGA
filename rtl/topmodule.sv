@@ -46,7 +46,7 @@ module topmodule#(
   always_ff @(posedge clk) begin
 	if(rst) begin 
 		trigger_counter <= {1'b1, 20'd0};
-		gain_value <= 10'd1;
+		gain_value <= 10'b101001;
 	end
 	else if (trigger_counter[20] & SW[0]) begin
 		trigger_counter <= '0;
@@ -66,7 +66,7 @@ module topmodule#(
   always_ff @(posedge clk) begin
 	if(rst) begin 
 		post_trigger_counter <= {1'b1, 20'd0};
-		post_gain_value <= 10'd1;
+		post_gain_value <= 10'b110;
 	end
 	else if (post_trigger_counter[20] & SW[1]) begin
 		post_trigger_counter <= '0;
