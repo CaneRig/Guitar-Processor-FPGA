@@ -3,7 +3,7 @@
 module topmodule#(
   parameter	clk_mhz   = 13,
 				out_res  = 16,  // resolution of output signal
-				target_freq  = 48  // khz
+				target_freq  = 48*3  // khz
       
   )(
 		input MAX10_CLK1_50,
@@ -17,7 +17,7 @@ module topmodule#(
 
 	wire rst;
 	wire clk;
-	wire valid;
+	wire valid = '1;
 	wire AO_mclk;  // GPIO-33
 	wire AO_bclk;  // GPIO-31
 	wire AO_lrclk;  // GPIO-27
@@ -37,12 +37,13 @@ module topmodule#(
   
   // gain controll
   localparam gain_increment = 16'd1;
+  localparam increment_speed = 18;
   
   
-  logic[20: 0] trigger_counter;
+  logic[increment_speed: 0] trigger_counter;
   logic[15: 0] gain_value;
   logic[15: 0] post_gain_value;
-  logic[20: 0] post_trigger_counter;
+  logic[increment_speed: 0] post_trigger_counter;
  
   
   always_ff @(posedge clk) begin
@@ -50,7 +51,7 @@ module topmodule#(
 		trigger_counter <= {1'b1, 20'd0};
 		gain_value <= 10'b101001;
 	end
-	else if (trigger_counter[20] & SW[0]) begin
+	else if (trigger_counter[increment_speed] & SW[0]) begin
 		trigger_counter <= '0;
 		if(~KEY[0])
 			gain_value <= gain_value + gain_increment;
@@ -59,18 +60,18 @@ module topmodule#(
 			
 	end else begin
 		if(SW[0])
-			trigger_counter <= trigger_counter + 21'd1;
+			trigger_counter <= trigger_counter + (increment_speed)'(1);
 		else
-			trigger_counter <= {1'b1, 20'd0};
+			trigger_counter <= {1'b1, '0};
 	end
   end
   
   always_ff @(posedge clk) begin
 	if(rst) begin 
-		post_trigger_counter <= {1'b1, 20'd0};
+		post_trigger_counter <= {1'b1, '0};
 		post_gain_value <= 10'b110;
 	end
-	else if (post_trigger_counter[20] & SW[1]) begin
+	else if (post_trigger_counter[increment_speed] & SW[1]) begin
 		post_trigger_counter <= '0;
 		if(~KEY[0])
 			post_gain_value <= post_gain_value + gain_increment;
@@ -79,9 +80,9 @@ module topmodule#(
 			
 	end else begin
 		if(SW[1])
-			post_trigger_counter <= post_trigger_counter + 21'd1;
+			post_trigger_counter <= post_trigger_counter + (increment_speed)'(1);
 		else
-			post_trigger_counter <= {1'b1, 20'd0};
+			post_trigger_counter <= {1'b1, '0};
 	end
   end
   
@@ -102,7 +103,7 @@ module topmodule#(
 		.TARET_FREQ(target_freq * 1000)
 	) ins_vgen (
 		.clk(clk),
-		.valid(valid),
+		//.valid(valid),
 		.rst(rst)
 	);
 
@@ -143,11 +144,11 @@ module topmodule#(
 	) ins_effs( 
 		.clk		     (clk			     ), 
 		.rst		     (gnd			     ),
-		.valid	     (valid		     ),
+		.ovrd_mode(SW[5]),
+		.i_valid	     (valid		     ),
 		.i_par_gain    (gain_value),
 		.i_sample	     (eff_sample_in	     ),
 		.o_sample      (eff_sample_out     ),
-		.o_overflow		(LEDR[9])
 	);
 	
 	// toggle transparent mode
@@ -165,15 +166,29 @@ module topmodule#(
 	
 	
 // audio output  
-	wire [out_res-1	: 0] dac_unsign_out;
+	wire [out_res-1	: 0] dac_unsign_out_next;
+	wire [out_res*2-1	: 0] dac_unsign_out;
 	
   
   	sign2unsign #(
 		.size(out_res)
      ) ins_u2s (
 		.in	(dac_reg),
-		.out	(dac_unsign_out)
+		.out	(dac_unsign_out_next)
 	);
+	
+	always_ff@(posedge clk)
+		if(rst) dac_unsign_out <= '0;
+		else dac_unsign_out  <= dac_unsign_out_next;
+	
+	logic[out_res-1:0] clipped_dac_out;
+	localparam big_value = 1 << (out_res-1);
+	always_comb begin
+		clipped_dac_out = dac_unsign_out * post_gain_value;
+		if(clipped_dac_out > big_value)
+			clipped_dac_out = big_value;
+	end
+	
 	
 	
      i2s_audio_out # (
@@ -181,7 +196,7 @@ module topmodule#(
      ) ins_audio_out (
                .clk     ( clk   	 ),
                .reset   ( rst       	 ),
-               .data_in ( dac_unsign_out * post_gain_value		),
+               .data_in ( dac_unsign_out),
                .mclk    ( AO_mclk   	 ), // JP1 pin 38
                .bclk    ( AO_bclk   	 ), // JP1 pin 36
                .lrclk   ( AO_lrclk  	 ), // JP1 pin 32
