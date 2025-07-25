@@ -17,7 +17,7 @@ module topmodule#(
 
 	wire rst;
 	wire clk;
-	wire valid = '1;
+	wire valid;
 	wire AO_mclk;  // GPIO-33
 	wire AO_bclk;  // GPIO-31
 	wire AO_lrclk;  // GPIO-27
@@ -103,7 +103,7 @@ module topmodule#(
 		.TARET_FREQ(target_freq * 1000)
 	) ins_vgen (
 		.clk(clk),
-		//.valid(valid),
+		.valid(valid),
 		.rst(rst)
 	);
 
@@ -124,31 +124,24 @@ module topmodule#(
      );
 	  
 	  //assign LEDR[8:0] = adc_sample_out[9:0];
-	  
-		unsign2sign #(
-			.size(16)
-		) ins_s2u (
-			.in	(adc_sample_out),
-			.out	(eff_sample_in)
-		);
-
 	
 // effects
-	wire [out_res-1: 0] eff_sample_in;
-	wire [12-1: 0] eff_sample_out;
+	wire [16: 0] eff_sample_in;
+	assign eff_sample_in = adc_sample_out;
+	wire [out_res-1: 0] eff_sample_out;
 
 	effects_pipeline#(
 		.bits_per_level(12  ),
-          .bits_per_gain_frac(4   ),  // fractional part of input gain
+       .bits_per_gain_frac(4   ),  // fractional part of input gain
 		.fxp_size      (out_res)
 	) ins_effs( 
 		.clk		     (clk			     ), 
-		.rst		     (gnd			     ),
+		.rst		     (rst			     ),
 		.ovrd_mode(SW[5]),
 		.i_valid	     (valid		     ),
-		.i_par_gain    (gain_value),
-		.i_sample	     (eff_sample_in	     ),
-		.o_sample      (eff_sample_out     ),
+		.i_par_gain   (gain_value),
+		.i_sample	  (eff_sample_in	     ),
+		.o_sample     (eff_sample_out     ),
 	);
 	
 	// toggle transparent mode
@@ -166,7 +159,7 @@ module topmodule#(
 	
 	
 // audio output  
-	wire [out_res-1	: 0] dac_unsign_out_next;
+
 	wire [out_res*2-1	: 0] dac_unsign_out;
 	
   
@@ -174,21 +167,8 @@ module topmodule#(
 		.size(out_res)
      ) ins_u2s (
 		.in	(dac_reg),
-		.out	(dac_unsign_out_next)
+		.out	(dac_unsign_out)
 	);
-	
-	always_ff@(posedge clk)
-		if(rst) dac_unsign_out <= '0;
-		else dac_unsign_out  <= dac_unsign_out_next;
-	
-	logic[out_res-1:0] clipped_dac_out;
-	localparam big_value = 1 << (out_res-1);
-	always_comb begin
-		clipped_dac_out = dac_unsign_out * post_gain_value;
-		if(clipped_dac_out > big_value)
-			clipped_dac_out = big_value;
-	end
-	
 	
 	
      i2s_audio_out # (
@@ -196,7 +176,7 @@ module topmodule#(
      ) ins_audio_out (
                .clk     ( clk   	 ),
                .reset   ( rst       	 ),
-               .data_in ( dac_unsign_out),
+               .data_in ( dac_unsign_out*post_gain_value),
                .mclk    ( AO_mclk   	 ), // JP1 pin 38
                .bclk    ( AO_bclk   	 ), // JP1 pin 36
                .lrclk   ( AO_lrclk  	 ), // JP1 pin 32
