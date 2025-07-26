@@ -51,12 +51,8 @@ module overdrive #(
                .i_sample		(ff_gain2ovrd_out),  // ff_gain2ovrd_out
                .o_sample		(clamped_signal_0)
           );
-     ovrd_tanh_clamp ins_clamp_tanh (
-               .i_sample		(ff_gain2ovrd_out), 
-               .o_sample		(clamped_signal_1)
-          );
      
-     assign o_sample = $signed(mode? clamped_signal_0: clamped_signal_1);
+     assign o_sample = $signed(clamped_signal_0);
 	//   assign o_overflow = ~((&clamped_signal_0[31:16]) | (&(~clamped_signal_0[31:16])));
      assign o_valid = i_valid;
      

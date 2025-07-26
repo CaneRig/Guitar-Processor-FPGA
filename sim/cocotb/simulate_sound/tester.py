@@ -29,7 +29,7 @@ input_samples = input_samples[:len(input_samples)//10]
 # input_samples = np.linspace(-1, 1, 1024)
 
 input_samples = input_samples.astype(np.float32)
-input_samples = (input_samples / np.abs(input_samples).max()) [:1024]
+input_samples = (input_samples / np.abs(input_samples).max())
 
 print(f'File \"{INPUT_PATH}\" is opened with {input_samples.shape} size')
 
