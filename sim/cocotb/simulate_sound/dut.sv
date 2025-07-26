@@ -10,12 +10,14 @@ module dut();
 
      logic clk;
      logic rst = '0;
-     logic valid = '1;
 
      logic  [10: 0] gain;
 
-     logic [bits_per_level-1  : 0] in_sample;
+     logic [fxp_size-1        : 0] in_sample;
      logic [fxp_size-1		: 0] out_sample;
+
+     logic i_valid;
+     logic o_valid;
 
 
      effects_pipeline #(
@@ -26,7 +28,8 @@ module dut();
           .clk(clk),
           .rst(rst),
           .i_par_gain(gain),
-          .valid(valid),
+          .i_valid(i_valid),
+          .o_valid(o_valid),
 
           .i_sample(in_sample),
           .o_sample(out_sample)

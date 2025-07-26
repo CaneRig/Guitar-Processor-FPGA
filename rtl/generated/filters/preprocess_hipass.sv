@@ -13,7 +13,7 @@ module preprocess_hipass(
 	localparam COMP_SIZE = FXP_SIZE + FXP_FRAC; // size of numbers in computations
 	
 	// for more precision
-	wire signed[COMP_SIZE-1] wide_sample;
+	wire signed[COMP_SIZE-1: 0] wide_sample;
 	signed_expand#(
 	     .operand_size  (FXP_SIZE),
 	     .expansion_size(FXP_FRAC) 
@@ -64,15 +64,15 @@ module preprocess_hipass(
 		if(rst) x_4 <= '0;
 		else if(i_valid) x_4 <= x_3;
 	end
-	localparam b_0 = 28'b0000000000000000000100011011;
-	localparam a_1 = -28'b0000000000000000010111001111;
-	localparam b_1 = 28'b0000000000000000010001101101;
-	localparam a_2 = 28'b0000000000000000100001110001;
-	localparam b_2 = 28'b0000000000000000011010100100;
-	localparam a_3 = -28'b0000000000000000000100111111;
-	localparam b_3 = 28'b0000000000000000010001101101;
-	localparam a_4 = 28'b0000000000000000000001010010;
-	localparam b_4 = 28'b0000000000000000000100011011;
+	localparam b_0 = 28'b0000000000000000000000000101;
+	localparam a_1 = -28'b0000000000000010110111010010;
+	localparam b_1 = 28'b0000000000000000000000010110;
+	localparam a_2 = 28'b0000000000000011001100011010;
+	localparam b_2 = 28'b0000000000000000000000100001;
+	localparam a_3 = -28'b0000000000000001100111111110;
+	localparam b_3 = 28'b0000000000000000000000010110;
+	localparam a_4 = 28'b0000000000000000010100001111;
+	localparam b_4 = 28'b0000000000000000000000000101;
 
 
 

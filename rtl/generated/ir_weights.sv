@@ -1,141 +1,284 @@
 `include "util.svh"
 
 module ir_weights#(
-	parameter test_vector_len = 128,
+	parameter test_vector_len = 64,
 		test_word_width =   16
 )(
-	output[127: 0][15: 0] weights
+// 	output[63: 0][15: 0] weights_re,
+// 	output[63: 0][15: 0] weights_im
+
+	input [4: 0] i_addr,
+	output[15: 0] o_weights_re,
+	output[15: 0] o_weights_im
 );
 
-	//`STATIC_CHECK(test_vector_len == 128, "Invalid vector length, expected: 128");
+	//`STATIC_CHECK(test_vector_len == 64, "Invalid vector length, expected: 64");
 	//`STATIC_CHECK(test_word_width == 16, "Invalid word length, expected: 16");
 
-	assign weights[0] = 16'h05C2;
-	assign weights[1] = 16'h0B8D;
-	assign weights[2] = 16'h0E84;
-	assign weights[3] = 16'h105B;
-	assign weights[4] = 16'h0EF7;
-	assign weights[5] = 16'h09DD;
-	assign weights[6] = 16'h04A1;
-	assign weights[7] = 16'hFF3F;
-	assign weights[8] = 16'hFA52;
-	assign weights[9] = 16'hF83B;
-	assign weights[10] = 16'hF89C;
-	assign weights[11] = 16'hFB69;
-	assign weights[12] = 16'hFEFA;
-	assign weights[13] = 16'h02A5;
-	assign weights[14] = 16'h058B;
-	assign weights[15] = 16'h07DD;
-	assign weights[16] = 16'h07EC;
-	assign weights[17] = 16'h0640;
-	assign weights[18] = 16'h04A6;
-	assign weights[19] = 16'h02B5;
-	assign weights[20] = 16'hFFE4;
-	assign weights[21] = 16'hFF51;
-	assign weights[22] = 16'hFF28;
-	assign weights[23] = 16'hFEA7;
-	assign weights[24] = 16'hFFCC;
-	assign weights[25] = 16'h0107;
-	assign weights[26] = 16'h0173;
-	assign weights[27] = 16'h01A9;
-	assign weights[28] = 16'h01A8;
-	assign weights[29] = 16'h0119;
-	assign weights[30] = 16'h00B1;
-	assign weights[31] = 16'hFFD2;
-	assign weights[32] = 16'hFE9D;
-	assign weights[33] = 16'hFDC4;
-	assign weights[34] = 16'hFD29;
-	assign weights[35] = 16'hFCB9;
-	assign weights[36] = 16'hFCAF;
-	assign weights[37] = 16'hFCC7;
-	assign weights[38] = 16'hFC88;
-	assign weights[39] = 16'hFCC3;
-	assign weights[40] = 16'hFD7E;
-	assign weights[41] = 16'hFE02;
-	assign weights[42] = 16'hFEA8;
-	assign weights[43] = 16'hFF97;
-	assign weights[44] = 16'h0086;
-	assign weights[45] = 16'h00B9;
-	assign weights[46] = 16'h00B0;
-	assign weights[47] = 16'h0083;
-	assign weights[48] = 16'h0028;
-	assign weights[49] = 16'h0042;
-	assign weights[50] = 16'h000D;
-	assign weights[51] = 16'hFFA3;
-	assign weights[52] = 16'hFFA2;
-	assign weights[53] = 16'hFF36;
-	assign weights[54] = 16'hFE60;
-	assign weights[55] = 16'hFDE1;
-	assign weights[56] = 16'hFDBA;
-	assign weights[57] = 16'hFDE6;
-	assign weights[58] = 16'hFE49;
-	assign weights[59] = 16'hFF1E;
-	assign weights[60] = 16'h0028;
-	assign weights[61] = 16'h010E;
-	assign weights[62] = 16'h01F1;
-	assign weights[63] = 16'h021C;
-	assign weights[64] = 16'h01A7;
-	assign weights[65] = 16'h0085;
-	assign weights[66] = 16'hFF10;
-	assign weights[67] = 16'hFDE7;
-	assign weights[68] = 16'hFD23;
-	assign weights[69] = 16'hFCEF;
-	assign weights[70] = 16'hFD11;
-	assign weights[71] = 16'hFD44;
-	assign weights[72] = 16'hFDAB;
-	assign weights[73] = 16'hFE18;
-	assign weights[74] = 16'hFE3C;
-	assign weights[75] = 16'hFE26;
-	assign weights[76] = 16'hFE18;
-	assign weights[77] = 16'hFE30;
-	assign weights[78] = 16'hFE6E;
-	assign weights[79] = 16'hFECD;
-	assign weights[80] = 16'hFF55;
-	assign weights[81] = 16'hFFB9;
-	assign weights[82] = 16'hFFEA;
-	assign weights[83] = 16'h001D;
-	assign weights[84] = 16'h0015;
-	assign weights[85] = 16'hFFBF;
-	assign weights[86] = 16'hFF77;
-	assign weights[87] = 16'hFF36;
-	assign weights[88] = 16'hFEF0;
-	assign weights[89] = 16'hFEE1;
-	assign weights[90] = 16'hFEAA;
-	assign weights[91] = 16'hFE68;
-	assign weights[92] = 16'hFE3A;
-	assign weights[93] = 16'hFE45;
-	assign weights[94] = 16'hFE28;
-	assign weights[95] = 16'hFE06;
-	assign weights[96] = 16'hFE10;
-	assign weights[97] = 16'hFE4C;
-	assign weights[98] = 16'hFEA4;
-	assign weights[99] = 16'hFEE8;
-	assign weights[100] = 16'hFEFF;
-	assign weights[101] = 16'hFF05;
-	assign weights[102] = 16'hFF0A;
-	assign weights[103] = 16'hFF00;
-	assign weights[104] = 16'hFF06;
-	assign weights[105] = 16'hFF06;
-	assign weights[106] = 16'hFEFA;
-	assign weights[107] = 16'hFEE6;
-	assign weights[108] = 16'hFEBD;
-	assign weights[109] = 16'hFE66;
-	assign weights[110] = 16'hFDE8;
-	assign weights[111] = 16'hFD85;
-	assign weights[112] = 16'hFD60;
-	assign weights[113] = 16'hFD97;
-	assign weights[114] = 16'hFE17;
-	assign weights[115] = 16'hFEBA;
-	assign weights[116] = 16'hFF3C;
-	assign weights[117] = 16'hFF8B;
-	assign weights[118] = 16'hFF90;
-	assign weights[119] = 16'hFF5C;
-	assign weights[120] = 16'hFF17;
-	assign weights[121] = 16'hFED0;
-	assign weights[122] = 16'hFE7E;
-	assign weights[123] = 16'hFE31;
-	assign weights[124] = 16'hFDF9;
-	assign weights[125] = 16'hFDD7;
-	assign weights[126] = 16'hFDD9;
-	assign weights[127] = 16'hFDFD;
+
+	always_comb begin
+		case(i_addr)
+			5'd0: begin 
+				o_weights_re = 16'h2A52; 
+				o_weights_im = 16'h0000; 
+			end
+			5'd1: begin 
+				o_weights_re = 16'h41BB; 
+				o_weights_im = 16'hC876; 
+			end
+			5'd2: begin 
+				o_weights_re = 16'h1CF9; 
+				o_weights_im = 16'hF741; 
+			end
+			5'd3: begin 
+				o_weights_re = 16'h4C64; 
+				o_weights_im = 16'hD491; 
+			end
+			5'd4: begin 
+				o_weights_re = 16'h5ED9; 
+				o_weights_im = 16'hD3DA; 
+			end
+			5'd5: begin 
+				o_weights_re = 16'h0DAA; 
+				o_weights_im = 16'h9508; 
+			end
+			5'd6: begin 
+				o_weights_re = 16'hD19F; 
+				o_weights_im = 16'hCD4C; 
+			end
+			5'd7: begin 
+				o_weights_re = 16'hDEFC; 
+				o_weights_im = 16'hF98D; 
+			end
+			5'd8: begin 
+				o_weights_re = 16'hEBE0; 
+				o_weights_im = 16'hFDC5; 
+			end
+			5'd9: begin 
+				o_weights_re = 16'hF3A2; 
+				o_weights_im = 16'hF9ED; 
+			end
+			5'd10: begin 
+				o_weights_re = 16'hF992; 
+				o_weights_im = 16'hFDDA; 
+			end
+			5'd11: begin 
+				o_weights_re = 16'hFAB9; 
+				o_weights_im = 16'hFCC6; 
+			end
+			5'd12: begin 
+				o_weights_re = 16'hFCD1; 
+				o_weights_im = 16'hFE1C; 
+			end
+			5'd13: begin 
+				o_weights_re = 16'hFD24; 
+				o_weights_im = 16'hFBE7; 
+			end
+			5'd14: begin 
+				o_weights_re = 16'hFC2A; 
+				o_weights_im = 16'hFF26; 
+			end
+			5'd15: begin 
+				o_weights_re = 16'hFD5B; 
+				o_weights_im = 16'hFE01; 
+			end
+			5'd16: begin 
+				o_weights_re = 16'hFF45; 
+				o_weights_im = 16'hFE20; 
+			end
+			5'd17: begin 
+				o_weights_re = 16'h0260; 
+				o_weights_im = 16'hFFB2; 
+			end
+			5'd18: begin 
+				o_weights_re = 16'h0128; 
+				o_weights_im = 16'hFBF7; 
+			end
+			5'd19: begin 
+				o_weights_re = 16'hFEF2; 
+				o_weights_im = 16'hFD9D; 
+			end
+			5'd20: begin 
+				o_weights_re = 16'hFF82; 
+				o_weights_im = 16'hFFE2; 
+			end
+			5'd21: begin 
+				o_weights_re = 16'h024D; 
+				o_weights_im = 16'hFA4A; 
+			end
+			5'd22: begin 
+				o_weights_re = 16'hFDF6; 
+				o_weights_im = 16'hFC42; 
+			end
+			5'd23: begin 
+				o_weights_re = 16'hFF57; 
+				o_weights_im = 16'hFF3C; 
+			end
+			5'd24: begin 
+				o_weights_re = 16'hFF59; 
+				o_weights_im = 16'hFDDB; 
+			end
+			5'd25: begin 
+				o_weights_re = 16'hFE56; 
+				o_weights_im = 16'hFDDD; 
+			end
+			5'd26: begin 
+				o_weights_re = 16'hFF63; 
+				o_weights_im = 16'hFF3C; 
+			end
+			5'd27: begin 
+				o_weights_re = 16'h000A; 
+				o_weights_im = 16'hFFCB; 
+			end
+			5'd28: begin 
+				o_weights_re = 16'hFFB6; 
+				o_weights_im = 16'hFF58; 
+			end
+			5'd29: begin 
+				o_weights_re = 16'h007A; 
+				o_weights_im = 16'h0020; 
+			end
+			5'd30: begin 
+				o_weights_re = 16'h00BC; 
+				o_weights_im = 16'hFF71; 
+			end
+			5'd31: begin 
+				o_weights_re = 16'hFFDB; 
+				o_weights_im = 16'hFF47; 
+			end
+			5'd32: begin 
+				o_weights_re = 16'hFFA9; 
+				o_weights_im = 16'h0000; 
+			end
+			5'd33: begin 
+				o_weights_re = 16'hFFDB; 
+				o_weights_im = 16'h00B9; 
+			end
+			5'd34: begin 
+				o_weights_re = 16'h00BC; 
+				o_weights_im = 16'h008F; 
+			end
+			5'd35: begin 
+				o_weights_re = 16'h007A; 
+				o_weights_im = 16'hFFE0; 
+			end
+			5'd36: begin 
+				o_weights_re = 16'hFFB6; 
+				o_weights_im = 16'h00A8; 
+			end
+			5'd37: begin 
+				o_weights_re = 16'h000A; 
+				o_weights_im = 16'h0035; 
+			end
+			5'd38: begin 
+				o_weights_re = 16'hFF63; 
+				o_weights_im = 16'h00C4; 
+			end
+			5'd39: begin 
+				o_weights_re = 16'hFE56; 
+				o_weights_im = 16'h0223; 
+			end
+			5'd40: begin 
+				o_weights_re = 16'hFF59; 
+				o_weights_im = 16'h0225; 
+			end
+			5'd41: begin 
+				o_weights_re = 16'hFF57; 
+				o_weights_im = 16'h00C4; 
+			end
+			5'd42: begin 
+				o_weights_re = 16'hFDF6; 
+				o_weights_im = 16'h03BE; 
+			end
+			5'd43: begin 
+				o_weights_re = 16'h024D; 
+				o_weights_im = 16'h05B6; 
+			end
+			5'd44: begin 
+				o_weights_re = 16'hFF82; 
+				o_weights_im = 16'h001E; 
+			end
+			5'd45: begin 
+				o_weights_re = 16'hFEF2; 
+				o_weights_im = 16'h0263; 
+			end
+			5'd46: begin 
+				o_weights_re = 16'h0128; 
+				o_weights_im = 16'h0409; 
+			end
+			5'd47: begin 
+				o_weights_re = 16'h0260; 
+				o_weights_im = 16'h004E; 
+			end
+			5'd48: begin 
+				o_weights_re = 16'hFF45; 
+				o_weights_im = 16'h01E0; 
+			end
+			5'd49: begin 
+				o_weights_re = 16'hFD5B; 
+				o_weights_im = 16'h01FF; 
+			end
+			5'd50: begin 
+				o_weights_re = 16'hFC2A; 
+				o_weights_im = 16'h00DA; 
+			end
+			5'd51: begin 
+				o_weights_re = 16'hFD24; 
+				o_weights_im = 16'h0419; 
+			end
+			5'd52: begin 
+				o_weights_re = 16'hFCD1; 
+				o_weights_im = 16'h01E4; 
+			end
+			5'd53: begin 
+				o_weights_re = 16'hFAB9; 
+				o_weights_im = 16'h033A; 
+			end
+			5'd54: begin 
+				o_weights_re = 16'hF992; 
+				o_weights_im = 16'h0226; 
+			end
+			5'd55: begin 
+				o_weights_re = 16'hF3A2; 
+				o_weights_im = 16'h0613; 
+			end
+			5'd56: begin 
+				o_weights_re = 16'hEBE0; 
+				o_weights_im = 16'h023B; 
+			end
+			5'd57: begin 
+				o_weights_re = 16'hDEFC; 
+				o_weights_im = 16'h0673; 
+			end
+			5'd58: begin 
+				o_weights_re = 16'hD19F; 
+				o_weights_im = 16'h32B4; 
+			end
+			5'd59: begin 
+				o_weights_re = 16'h0DAA; 
+				o_weights_im = 16'h6AF8; 
+			end
+			5'd60: begin 
+				o_weights_re = 16'h5ED9; 
+				o_weights_im = 16'h2C26; 
+			end
+			5'd61: begin 
+				o_weights_re = 16'h4C64; 
+				o_weights_im = 16'h2B6F; 
+			end
+			5'd62: begin 
+				o_weights_re = 16'h1CF9; 
+				o_weights_im = 16'h08BF; 
+			end
+			5'd63: begin 
+				o_weights_re = 16'h41BB; 
+				o_weights_im = 16'h378A; 
+			end
+
+			default: begin
+				o_weights_re = '0;
+				o_weights_im = '0;
+			end
+		endcase
+	end
 endmodule

@@ -3,8 +3,9 @@ import scipy.io.wavfile as wv
 import scipy as sc
 import fxpmath as fx
 import os
+import math 
 
-ir_size = 128
+ir_size = 64
 print('IR size:', ir_size)
 
 fxp_bits = 16
@@ -21,7 +22,7 @@ def gen_freq(epochs: int = 10) -> float:
      for i in range(epochs):
           yield 10 * 2 ** i
 
-def freq_analysis(arr: np.ndarray, slice: int = 128, div: float = 200) -> np.ndarray:
+def freq_analysis(arr: np.ndarray, slice: int = ir_size, div: float = 200) -> np.ndarray:
      values = []
      fft = np.fft.fft(arr)
      for frequence in gen_freq():
@@ -81,7 +82,13 @@ def to_fxp(number: float) -> str:
      f = fx.Fxp(number, n_frac=fxp_frac_bits, n_int=fxp_bits - fxp_frac_bits)
      return str(fxp_bits) + '\'h' + f.hex()[3:].upper()
 
-fxp_ir = list(map(to_fxp, ir_output))
+ir_output = np.fft.fft(ir_output)
+
+rfxp_ir = list(map(to_fxp, np.real(ir_output)))
+ifxp_ir = list(map(to_fxp, np.imag(ir_output)))
+
+ir_output = rfxp_ir
+addr_ln = int(math.ceil(math.log2(fxp_bits))) + 1
 
 module = f'''`include "util.svh"
 
@@ -89,7 +96,12 @@ module ir_weights#(
 \tparameter test_vector_len = {len(ir_output)},
 \t\ttest_word_width =   {fxp_bits}
 )(
-\toutput[{len(ir_output)-1}: 0][{fxp_bits-1}: 0] weights
+// \toutput[{len(ir_output)-1}: 0][{fxp_bits-1}: 0] weights_re,
+// \toutput[{len(ir_output)-1}: 0][{fxp_bits-1}: 0] weights_im
+
+\tinput [{addr_ln-1}: 0] i_addr,
+\toutput[{fxp_bits-1}: 0] o_weights_re,
+\toutput[{fxp_bits-1}: 0] o_weights_im
 );
 
 \t`STATIC_CHECK(test_vector_len == {len(ir_output)}, "Invalid vector length, expected: {len(ir_output)}");
@@ -97,9 +109,27 @@ module ir_weights#(
 
 '''
 
-for i in range(len(fxp_ir)):
-     module += f'\tassign weights[{i}] = {fxp_ir[i]};\n'
+module += '''
+\talways_comb begin
+\t\tcase(i_addr)
+'''
+for i in range(len(rfxp_ir)):
+     module += f'''\t\t\t{addr_ln}\'d{i}: begin 
+\t\t\t\to_weights_re = {rfxp_ir[i]}; 
+\t\t\t\to_weights_im = {ifxp_ir[i]}; 
+\t\t\tend
+'''
+     # module += f'\tassign weights_re[{i}] = {rfxp_ir[i]};\n'
+     # module += f'\tassign weights_im[{i}] = {ifxp_ir[i]};\n'
 
+module += '''
+\t\t\tdefault: begin
+\t\t\t\to_weights_re = '0;
+\t\t\t\to_weights_im = '0;
+\t\t\tend
+\t\tendcase
+\tend
+'''
 module += "endmodule\n"
 
 path = os.path.dirname(os.path.realpath(__file__)) # ir-generator

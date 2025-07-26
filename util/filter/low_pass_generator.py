@@ -8,7 +8,7 @@ import os
 
 # Параметры фильтра
 cutoff_freq = 10000.0  # Частота среза 10 кГц
-sample_rate = 44100    # Частота дискретизации (стандартная для аудио)
+sample_rate = 48000*3    # Частота дискретизации (стандартная для аудио)
 order = 4              # Порядок фильтра (выше порядок = круче срез)
 
 # Рассчитываем нормированную частоту среза (относительно частоты Найквиста)
@@ -47,7 +47,7 @@ module preprocess_hipass(
 \tlocalparam COMP_SIZE = FXP_SIZE + FXP_FRAC; // size of numbers in computations
 \t
 \t// for more precision
-\twire signed[COMP_SIZE-1] wide_sample;
+\twire signed[COMP_SIZE-1: 0] wide_sample;
 \tsigned_expand#(
 \t     .operand_size  (FXP_SIZE),
 \t     .expansion_size(FXP_FRAC) 

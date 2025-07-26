@@ -17,8 +17,8 @@ module valid_generator #(
 	
 	always_ff@(posedge clk) begin
 		if(rst) counter <= '0;
-		else if(counter == target) couter <= '0;
-		else couter <= counter_next;
+		else if(counter == target) counter <= '0;
+		else counter <= counter_next;
 	end
 	
 	assign counter_next = counter + (target_width)'(1);

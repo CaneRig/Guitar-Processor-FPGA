@@ -9,9 +9,9 @@ module effects_pipeline #(
      // effects parameters 
      input  [10: 0] i_par_gain,    // bits_per_gain_frac bits for fraction part, 10 - bits_per_gain_frac bits for integer part
 
-
+	  input 	ovrd_mode,
      input  i_valid,
-     input  [bits_per_level-1	     : 0] i_sample,
+     input  [fxp_size-1	     : 0] i_sample,
      output [fxp_size-1			: 0] o_sample,
      output o_valid
 );
@@ -19,23 +19,44 @@ module effects_pipeline #(
 // Extend i_sample from 12 bit to 16
      wire [fxp_size-1   :0   ]   sample_in_extended;
      signed_expand#(
-          .operand_size(bits_per_level),
-          .expansion_size(fxp_size-bits_per_level)
+          .operand_size(fxp_size),
+          .expansion_size(fxp_size-fxp_size)
      ) i_in_sexpand (
           .in(i_sample),
           .out(sample_in_extended)
      );
+     logic oval;
+     flipflop#(
+          .size(fxp_size)
+     ) ins_filter_ff (
+          .clk		(clk),
+          .rst		(rst),
+          .valid	(i_valid),
+          .i_data	(sample_in_extended),
+          .o_data	(fil_in)
+     );
+
+     logic [fxp_size-1  :0   ]   overdrive_in_in;
+     logic [fxp_size-1  :0   ]   overdrive_in;
+     logic [fxp_size-1  :0   ]   fil_in;
+
+     preprocess_hipass ins_hipass(
+		.clk(clk),
+		.rst(rst),
+		.i_valid(i_valid),
+		.o_valid(oval),
+		.i_sample(fil_in),
+		.o_sample(overdrive_in_in)
+	);
 
 // Overdrive
-     logic [fxp_size-1  :0   ]   overdrive_in;
-
      flipflop#(
           .size(fxp_size)
      ) ins_overdrive_ff (
           .clk		(clk),
           .rst		(rst),
           .valid	(i_valid),
-          .i_data	(sample_in_extended),
+          .i_data	(overdrive_in_in),
           .o_data	(overdrive_in)
      );
 
@@ -51,10 +72,13 @@ module effects_pipeline #(
      ) ins_ovrd (
           .clk(clk),
           .rst(rst),
+			 
+			 .mode(ovrd_mode),
+			 
           .i_valid(i_valid),
           .o_valid(o_valid_ovr),
 
-          .i_sample(overdrive_in * 2),
+          .i_sample(overdrive_in),
           .i_gain(ovrd_gain),
           .o_sample(overdrive_out)
      );
@@ -66,10 +90,10 @@ module effects_pipeline #(
      ) ins_output_ff (
           .clk(clk),
           .rst(rst),
-          .valid(o_valid_ovr),
+          .valid(i_valid),
           .i_data(overdrive_out[fxp_size-1: 0]),
           .o_data(o_sample)
      );
      
-     assign o_valid = o_valid_ovr;
+     assign o_valid = i_valid;
 endmodule

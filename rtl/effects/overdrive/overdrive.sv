@@ -7,6 +7,8 @@ module overdrive #(
      input rst,
      input i_valid,
      output o_valid,
+	  
+	  input mode,
 
      input  [fxp_size - 1: 0] i_sample,
      input  [fxp_size - 1: 0] i_gain,
@@ -36,7 +38,7 @@ module overdrive #(
      ) ins_gain2ovrd_ff (
           .clk		(clk),
           .rst		(rst),
-          .valid	(valid),
+          .valid	(i_valid),
 
           .i_data	(gained_signal),
           .o_data	(ff_gain2ovrd_out)
@@ -54,7 +56,7 @@ module overdrive #(
                .o_sample		(clamped_signal_1)
           );
      
-     assign o_sample = $signed(clamped_signal_0);
+     assign o_sample = $signed(mode? clamped_signal_0: clamped_signal_1);
 	//   assign o_overflow = ~((&clamped_signal_0[31:16]) | (&(~clamped_signal_0[31:16])));
      assign o_valid = i_valid;
      
