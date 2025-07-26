@@ -40,14 +40,15 @@ module effects_pipeline #(
      logic [fxp_size-1  :0   ]   overdrive_in;
      logic [fxp_size-1  :0   ]   fil_in;
 
-     preprocess_hipass ins_hipass(
-		.clk(clk),
-		.rst(rst),
-		.i_valid(i_valid),
-		.o_valid(oval),
-		.i_sample(fil_in),
-		.o_sample(overdrive_in_in)
-	);
+     // preprocess_hipass ins_hipass(
+	// 	.clk(clk),
+	// 	.rst(rst),
+	// 	.i_valid(i_valid),
+	// 	.o_valid(oval),
+	// 	.i_sample(fil_in),
+	// 	.o_sample(overdrive_in_in)
+	// );
+     assign overdrive_in_in = fil_in;
 
 // Overdrive
      flipflop#(
